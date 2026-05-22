@@ -1,0 +1,262 @@
+/* GRANTING ACCESS TO THE TABLES CREATED MCO/MBHP SCORECARD */
+
+
+GRANT SELECT ON tibbettsn.MCO_MBHP_DOS_may2020_aug2020 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_CLMTYP_may2020_aug2020 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_TOTREX_may2020_aug2020 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_CLDOSP_may2020_aug2020 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_TDOS_may2020_aug2020 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_TPDOS_may2020_aug2020 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_FLDREX_may2020_aug2020 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_FRDOS_may2020_aug2020 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_FRPDOS_may2020_aug2020 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_PCNT_may2020_aug2020 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_PCTDOS_may2020_aug2020 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_PTPDOS_may2020_aug2020 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_REPORT_may2020_aug2020 TO nw_read;
+
+
+
+
+
+GRANT SELECT ON tibbettsn.MCO_MBHP_DOS_dec2019_mar2020 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_CLMTYP_dec2019_mar2020 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_TOTREX_dec2019_mar2020 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_CLDOSP_dec2019_mar2020 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_TDOS_dec2019_mar2020 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_TPDOS_dec2019_mar2020 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_FLDREX_dec2019_mar2020 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_FRDOS_dec2019_mar2020 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_FRPDOS_dec2019_mar2020 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_PCNT_dec2019_mar2020 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_PCTDOS_dec2019_mar2020 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_PTPDOS_dec2019_mar2020 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_REPORT_dec2019_mar2020 TO nw_read;
+
+GRANT SELECT ON tibbettsn.MCO_MBHP_DOS_nov2019_feb2020 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_CLMTYP_nov2019_feb2020 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_TOTREX_nov2019_feb2020 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_CLDOSP_nov2019_feb2020 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_TDOS_nov2019_feb2020 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_TPDOS_nov2019_feb2020 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_FLDREX_nov2019_feb2020 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_FRDOS_nov2019_feb2020 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_FRPDOS_nov2019_feb2020 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_PCNT_nov2019_feb2020 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_PCTDOS_nov2019_feb2020 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_PTPDOS_nov2019_feb2020 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_REPORT_nov2019_feb2020 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_REPORT_BMCnov2019_feb2020 TO nw_read;
+
+/*
+GRANT SELECT ON tibbettsn.MCO_MBHP_DOS_jul2019_oct2019 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_CLMTYP_jul2019_oct2019 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_TOTREX_jul2019_oct2019 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_CLDOSP_jul2019_oct2019 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_TDOS_jul2019_oct2019 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_TPDOS_jul2019_oct2019 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_FLDREX_jul2019_oct2019 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_FRDOS_jul2019_oct2019 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_FRPDOS_jul2019_oct2019 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_PCNT_jul2019_oct2019 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_PCTDOS_jul2019_oct2019 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_PTPDOS_jul2019_oct2019 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_REPORT_jul2019_oct2019 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_REPORT_BMCjul2019_oct2019 TO nw_read;
+*/
+/*
+GRANT SELECT ON tibbettsn.MCO_MBHP_DOS_jan2019_apr2019 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_CLMTYP_jan2019_apr2019 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_TOTREX_jan2019_apr2019 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_CLDOSP_jan2019_apr2019 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_TDOS_jan2019_apr2019 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_TPDOS_jan2019_apr2019 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_FLDREX_jan2019_apr2019 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_FRDOS_jan2019_apr2019 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_FRPDOS_jan2019_apr2019 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_PCNT_jan2019_apr2019 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_PCTDOS_jan2019_apr2019 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_PTPDOS_jan2019_apr2019 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_REPORT_jan2019_apr2019 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_REPORT_BMCjan2019_apr2019 TO nw_read;
+*/
+/*GRANT SELECT ON tibbettsn.MCO_MBHP_DOS_dec2018_mar2019 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_CLMTYP_dec2018_mar2019 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_TOTREX_dec2018_mar2019 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_CLDOSP_dec2018_mar2019 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_TDOS_dec2018_mar2019 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_TPDOS_dec2018_mar2019 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_FLDREX_dec2018_mar2019 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_FRDOS_dec2018_mar2019 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_FRPDOS_dec2018_mar2019 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_PCNT_dec2018_mar2019 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_PCTDOS_dec2018_mar2019 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_PTPDOS_dec2018_mar2019 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_REPORT_dec2018_mar2019 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_REPORT_BMCdec2018_mar2019 TO nw_read;
+*/
+
+/*GRANT SELECT ON tibbettsn.MCO_MBHP_DOS_nov2018_feb2019 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_CLMTYP_nov2018_feb2019 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_TOTREX_nov2018_feb2019 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_CLDOSP_nov2018_feb2019 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_TDOS_nov2018_feb2019 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_TPDOS_nov2018_feb2019 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_FLDREX_nov2018_feb2019 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_FRDOS_nov2018_feb2019 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_FRPDOS_nov2018_feb2019 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_PCNT_nov2018_feb2019 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_PCTDOS_nov2018_feb2019 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_PTPDOS_nov2018_feb2019 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_REPORT_nov2018_feb2019 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_REPORT_BMCnov2018_feb2019 TO nw_read;
+*/
+
+/*GRANT SELECT ON tibbettsn.MCO_MBHP_DOS_jul2018_oct2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_CLMTYP_jul2018_oct2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_TOTREX_jul2018_oct2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_CLDOSP_jul2018_oct2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_TDOS_jul2018_oct2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_TPDOS_jul2018_oct2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_FLDREX_jul2018_oct2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_FRDOS_jul2018_oct2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_FRPDOS_jul2018_oct2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_PCNT_jul2018_oct2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_PCTDOS_jul2018_oct2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_PTPDOS_jul2018_oct2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_REPORT_jul2018_oct2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_REPORT_BMCjul2018_oct2018 TO nw_read;
+*/
+
+GRANT SELECT ON tibbettsn.MCO_MBHP_DOS_jul2018_oct2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_CLMTYP_jul2018_oct2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_TOTREX_jul2018_oct2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_CLDOSP_jul2018_oct2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_TDOS_jul2018_oct2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_TPDOS_jul2018_oct2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_FLDREX_jul2018_oct2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_FRDOS_jul2018_oct2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_FRPDOS_jul2018_oct2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_PCNT_jul2018_oct2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_PCTDOS_jul2018_oct2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_PTPDOS_jul2018_oct2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_REPORT_jul2018_oct2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_REPORT_BMCjul2018_oct2018 TO nw_read;
+
+/*GRANT SELECT ON tibbettsn.MCO_MBHP_DOS_jun2018_sep2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_CLMTYP_jun2018_sep2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_TOTREX_jun2018_sep2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_CLDOSP_jun2018_sep2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_TDOS_jun2018_sep2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_TPDOS_jun2018_sep2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_FLDREX_jun2018_sep2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_FRDOS_jun2018_sep2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_FRPDOS_jun2018_sep2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_PCNT_jun2018_sep2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_PCTDOS_jun2018_sep2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_PTPDOS_jun2018_sep2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_REPORT_jun2018_sep2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_REPORT_BMCjun2018_sep2018 TO nw_read;
+
+GRANT SELECT ON tibbettsn.MCO_MBHP_DOS_may2018_aug2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_CLMTYP_may2018_aug2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_TOTREX_may2018_aug2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_CLDOSP_may2018_aug2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_TDOS_may2018_aug2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_TPDOS_may2018_aug2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_FLDREX_may2018_aug2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_FRDOS_may2018_aug2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_FRPDOS_may2018_aug2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_PCNT_may2018_aug2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_PCTDOS_may2018_aug2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_PTPDOS_may2018_aug2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_REPORT_may2018_aug2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_REPORT_BMCmay2018_aug2018 TO nw_read;
+*/
+/*
+GRANT SELECT ON tibbettsn.MCO_MBHP_DOS_apr2018_jul2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_CLMTYP_apr2018_jul2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_TOTREX_apr2018_jul2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_CLDOSP_apr2018_jul2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_TDOS_apr2018_jul2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_TPDOS_apr2018_jul2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_FLDREX_apr2018_jul2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_FRDOS_apr2018_jul2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_FRPDOS_apr2018_jul2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_PCNT_apr2018_jul2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_PCTDOS_apr2018_jul2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_PTPDOS_apr2018_jul2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_REPORT_apr2018_jul2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_REPORT_BMCapr2018_jul2018 TO nw_read;
+*/
+/*
+GRANT SELECT ON tibbettsn.MCO_MBHP_DOS_mar2018_jun2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_CLMTYP_mar2018_jun2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_TOTREX_mar2018_jun2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_CLDOSP_mar2018_jun2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_TDOS_mar2018_jun2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_TPDOS_mar2018_jun2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_FLDREX_mar2018_jun2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_FRDOS_mar2018_jun2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_FRPDOS_mar2018_jun2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_PCNT_mar2018_jun2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_PCTDOS_mar2018_jun2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_PTPDOS_mar2018_jun2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_REPORT_mar2018_jun2018 TO nw_read;
+*/
+
+/*GRANT SELECT ON tibbettsn.MCO_MBHP_DOS_mar2018_may2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_CLMTYP_mar2018_may2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_TOTREX_mar2018_may2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_CLDOSP_mar2018_may2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_TDOS_mar2018_may2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_TPDOS_mar2018_may2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_FLDREX_mar2018_may2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_FRDOS_mar2018_may2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_FRPDOS_mar2018_may2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_PCNT_mar2018_may2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_PCTDOS_mar2018_may2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_PTPDOS_mar2018_may2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_REPORT_mar2018_may2018 TO nw_read;
+
+GRANT SELECT ON tibbettsn.MCO_MBHP_DOS_mar2018_apr2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_CLMTYP_mar2018_apr2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_TOTREX_mar2018_apr2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_CLDOSP_mar2018_apr2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_TDOS_mar2018_apr2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_TPDOS_mar2018_apr2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_FLDREX_mar2018_apr2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_FRDOS_mar2018_apr2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_FRPDOS_mar2018_apr2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_PCNT_mar2018_apr2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_PCTDOS_mar2018_apr2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_PTPDOS_mar2018_apr2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_REPORT_mar2018_apr2018 TO nw_read;
+*/
+/*
+GRANT SELECT ON tibbettsn.MCO_MBHP_DOS_mar2018_mar2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_CLMTYP_mar2018_mar2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_TOTREX_mar2018_mar2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_CLDOSP_mar2018_mar2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_TDOS_mar2018_mar2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_TPDOS_mar2018_mar2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_FLDREX_mar2018_mar2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_FRDOS_mar2018_mar2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_FRPDOS_mar2018_mar2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_PCNT_mar2018_mar2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_PCTDOS_mar2018_mar2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_PTPDOS_mar2018_mar2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_REPORT_mar2018_mar2018 TO nw_read;
+
+GRANT SELECT ON tibbettsn.MCO_MBHP_DOS_FEB2017_JAN2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_CLMTYP_FEB2017_JAN2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_TOTREX_FEB2017_JAN2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_TDOS_FEB2017_JAN2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_FLDREX_FEB2017_JAN2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_FRDOS_FEB2017_JAN2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_PCNT_FEB2017_JAN2018 TO nw_read;
+GRANT SELECT ON tibbettsn.MCO_MBH_PCTDOS_FEB2017_JAN2018 TO nw_read;
+
+/*GRANT SELECT ON tibbettsn.MCO_MBH_TCLMTY_FEB2017_JAN2018 TO nw_read; table in orig sas composite*/
+/*GRANT SELECT ON tibbettsn.MCO_MBH_FRCTYP_FEB2017_JAN2018 TO nw_read; table in orig sas composite*/
+/*GRANT SELECT ON tibbettsn.MCO_MBH_PCTCTY_FEB2017_JAN2018 TO nw_read; table in orig sas composite*/

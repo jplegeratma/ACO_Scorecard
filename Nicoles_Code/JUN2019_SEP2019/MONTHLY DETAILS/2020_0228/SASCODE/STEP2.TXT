@@ -1,0 +1,28 @@
+PROC SQL; 
+CONNECT TO ORACLE (PATH=DWP1RAC DBPROMPT=NO DEFER=NO USER=tibbettsn PASSWORD='Rhc9#mTps') ;
+ EXECUTE (
+         CREATE TABLE MCO_MBH_CLDOSP_&MONYY.
+         NOLOGGING
+         COMPRESS
+         AS
+         SELECT CDE_ENC_MCO,
+         TO_CHAR(DOS_FROM,'YYYY-MM') AS DOS_MONTH ,
+         CLAIM_TYPE,
+         ACO,
+         cde_clm_DISPOSITION,
+         COUNT(*) AS REX,
+         SUM(AMT_PAID) AS PAID
+         FROM MCO_MBHP_DOS_&MONYY.
+         GROUP BY TO_CHAR(DOS_FROM,'YYYY-MM'),
+         CLAIM_TYPE,
+         CDE_ENC_MCO,
+         ACO,
+         cde_clm_disposition
+         ORDER BY
+         CDE_ENC_MCO,
+         TO_CHAR(DOS_FROM,'YYYY-MM'),
+         ACO,
+         CLAIM_TYPE,
+         cde_clm_disposition
+         /************************** 2 *********************************/
+         ) BY ORACLE; DISCONNECT FROM ORACLE; QUIT; 

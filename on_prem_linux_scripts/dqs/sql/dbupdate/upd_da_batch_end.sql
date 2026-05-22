@@ -1,0 +1,18 @@
+SET pause OFF
+SET echo ON
+SET feedback ON
+SET TIME ON
+SET timing ON
+
+whenever sqlerror exit failure rollback
+
+UPDATE INF_B_DQ_LOAD_BATCH
+SET BATCH_END_DT_TM = SYSDATE,
+    STATUS          = 'Complete'
+WHERE DQ_BATCH_SEQ = (SELECT TO_NUMBER(PARAM_VALUE) FROM INF_B_DQ_PARAMS WHERE PARAM_NAME = 'DA_BATCH_SEQ' )
+/
+COMMIT
+/
+
+EXIT
+

@@ -1,0 +1,1784 @@
+CREATE TABLE MCO_MBH_CLMTYP_&MONYY.
+         NOLOGGING
+         COMPRESS
+         AS
+         SELECT CDE_ENC_MCO,
+         TO_CHAR(DOS_FROM,'YYYY-MM') AS DOS_MONTH ,
+         CLAIM_TYPE,
+         cde_clm_DISPOSITION,
+         COUNT(*) AS REX,
+         SUM(AMT_PAID) AS PAID
+         FROM MCO_MBHP_DOS_&MONYY.
+         GROUP BY TO_CHAR(DOS_FROM,'YYYY-MM'),
+         CLAIM_TYPE,
+         CDE_ENC_MCO,
+         cde_clm_disposition
+         ORDER BY
+         CDE_ENC_MCO,
+         TO_CHAR(DOS_FROM,'YYYY-MM'),
+         CLAIM_TYPE,
+         cde_clm_disposition
+
+CREATE TABLE MCO_MBH_CLDOSP_&MONYY.
+         NOLOGGING
+         COMPRESS
+         AS
+         SELECT CDE_ENC_MCO,
+         TO_CHAR(DOS_FROM,'YYYY-MM') AS DOS_MONTH ,
+         CLAIM_TYPE,
+         ACO,
+         cde_clm_DISPOSITION,
+         COUNT(*) AS REX,
+         SUM(AMT_PAID) AS PAID
+         FROM MCO_MBHP_DOS_&MONYY.
+         GROUP BY TO_CHAR(DOS_FROM,'YYYY-MM'),
+         CLAIM_TYPE,
+         CDE_ENC_MCO,
+         ACO,
+         cde_clm_disposition
+         ORDER BY
+         CDE_ENC_MCO,
+         TO_CHAR(DOS_FROM,'YYYY-MM'),
+         ACO,
+         CLAIM_TYPE,
+         cde_clm_disposition
+    
+CREATE TABLE MCO_MBH_TOTREX_&MONYY.
+         NOLOGGING
+         COMPRESS
+         AS
+         SELECT CDE_ENC_MCO,
+         SUM(INPATS) AS TOT_INPAT,
+         SUM(OUTPATS) AS TOT_OUTPT,
+         SUM(OUTPATSQ2) AS TOT_OUTPTQ2, /*ADJUST B/C Q2 REMOVED REC_IND=0 FROM DATA PULL*/
+         SUM(MED) AS TOT_MED,
+         SUM(MEDQ2) AS TOT_MEDQ2,  /*ADJUST B/C Q2 REMOVED REC_IND=0 FROM DATA PULL*/
+         SUM(PHARMS) AS TOT_PHARM,
+         SUM(DENT) AS TOT_DENT,
+         SUM(DENTQ2) AS TOT_DENTQ2, /*ADJUST B/C Q2 REMOVED REC_IND=0 FROM DATA PULL*/
+         SUM(LTCS) AS TOT_LTC,
+         SUM(FACILTY) AS TOT_FACILTY,
+         SUM(ADJUST) AS TOT_ADJST,
+         SUM(MISS) AS TOT_MISSING,
+         SUM(NOT_PRM_DNT) AS TOT_NON_PHRM_DENT, /* USED TO COMPUTE % ON NON PHARM AND DENTAL CLAIMS, WHICH DON'T HAVE DX */
+         SUM(NOT_PRM_DNTQ2) AS TOT_NON_PHRM_DENTQ2, /*ADJUST B/C Q2 REMOVED REC_IND=0 FROM DATA PULL*/
+         SUM(PHARM_SCRIPT) AS TOT_PHARM_SCRIPT, /* USED TO COMPUTE % ON PRESCRIBING ID/TYPE OTC ARE EXCLUDED PER SPECS*/
+         SUM(NOTCOMPOUND) AS TOT_NOTCOMPOUND,
+         SUM(PHARMSCRIPT_NOTCOMP) AS TOT_PHARMSCRIPT_NOTCOMP,
+         SUM(NON_PHARM) AS TOT_NONPHARM, /*added 7.2.18*/
+         (SUM(INPATS) + SUM(MED)) AS TOT_INP_MED,
+         (SUM(INPATS) + SUM(LTCS)) AS TOT_INPT_LTC,
+         	    (SUM(INPATS) + SUM(OUTPATS)) AS TOT_INPT_OUTPT,
+         (SUM(INPATS) + SUM(OUTPATS) + SUM(LTCS)) AS TOT_INPT_OUTPT_LTC,
+         SUM(INOUTLTC_NOART) AS TOT_INOUTLTC_NOART,
+         SUM(INPAT_FILTER1) AS TOT_INPAT_FILTER1,
+         SUM(INPAT_FILTER2) AS TOT_INPAT_FILTER2,
+         SUM(INOPLTC_EXC) AS TOT_INP_OP_LTC_EXC,
+         SUM(INOPLTCM_EXC) AS TOT_INP_OP_LTC_M_EXC,
+         SUM(INOPLTCM_EXCQ2) AS TOT_INP_OP_LTC_M_EXCQ2, /*ADJUST B/C Q2 REMOVED REC_IND=0 FROM DATA PULL*/
+         SUM(MOD_DME) AS TOT_MOD_DME,
+         SUM(MOD_LABXRAY) AS TOT_MOD_LABXRAY,
+         SUM(MOD_SURGERYM) AS TOT_MOD_SURGERYM,
+         SUM(REX) AS TOT_REX
+         FROM
+         (SELECT
+         CDE_ENC_MCO,
+         CASE WHEN CLAIM_TYPE = 'I' THEN 1 ELSE 0 END INPATS,
+         CASE WHEN CLAIM_TYPE = 'P' THEN 1 ELSE 0 END PHARMS,
+         CASE WHEN CLAIM_TYPE = 'O' THEN 1 ELSE 0 END OUTPATS,
+         CASE WHEN CLAIM_TYPE = 'O' AND CDE_ENC_REC_IND <> '0' THEN 1 ELSE 0 END OUTPATSQ2,
+         CASE WHEN CLAIM_TYPE = 'L' THEN 1 ELSE 0 END LTCS,
+         CASE WHEN CLAIM_TYPE IN ('M') THEN 1 ELSE 0 END MED,
+         CASE WHEN CLAIM_TYPE IN ('M') AND CDE_ENC_REC_IND <> '0' THEN 1 ELSE 0 END MEDQ2,
+         CASE WHEN CLAIM_TYPE IN ('D') THEN 1 ELSE 0 END DENT,
+         CASE WHEN CLAIM_TYPE IN ('D') AND CDE_ENC_REC_IND <> '0' THEN 1 ELSE 0 END DENTQ2,
+         CASE WHEN CLAIM_TYPE NOT IN ('P','D') THEN 1 ELSE 0 END NOT_PRM_DNT,
+         CASE WHEN CLAIM_TYPE NOT IN ('P','D') AND CDE_ENC_REC_IND <> '0' THEN 1 ELSE 0 END NOT_PRM_DNTQ2,
+         CASE WHEN CLAIM_TYPE = 'P' AND CDE_DRUG_CLASS = 'F' THEN 1 ELSE 0 END PHARM_SCRIPT,
+         CASE WHEN CLAIM_TYPE <> 'P' THEN 1 ELSE 0 END AS NON_PHARM, /*added 7.2.18 for update to quantity logic*/
+         CASE WHEN IND_ENC_COMPOUND='2' THEN 1 ELSE 0 END AS NOTCOMPOUND,
+         CASE WHEN CLAIM_TYPE = 'P' AND CDE_DRUG_CLASS = 'F' AND IND_ENC_COMPOUND='2'
+         THEN 1 ELSE 0 END PHARMSCRIPT_NOTCOMP,
+         CASE WHEN SUBSTR(CDE_ENC_CLAIM_CAT,1,1) = '1' THEN 1 ELSE 0 END FACILTY,
+         CASE WHEN cde_clm_disposition <> 'O' THEN 1 ELSE 0 END ADJUST,
+         CASE WHEN CLAIM_TYPE IN (' ','-','+') THEN 1 ELSE 0 END MISS,
+         CASE WHEN CLAIM_TYPE='I' AND substr(cde_type_of_bill_enc,1,2) <> '21' and 
+                   SUBSTR(DSC_PATIENT_STATUS,1,2) NOT BETWEEN '31' AND '39' THEN 1 ELSE 0 END INPAT_FILTER1,
+         CASE WHEN CLAIM_TYPE IN('I') AND substr(cde_type_of_bill_enc,1,2) not in('12','22','42','62','81','82') THEN 1 ELSE 0 END AS INPAT_FILTER2,
+         CASE WHEN CLAIM_TYPE IN('I','O','L') and cde_enc_rec_ind <> '0' THEN 1 ELSE 0 END AS INOUTLTC_NOART,
+         CASE WHEN ((CLAIM_TYPE='I' AND CDE_PATIENT_STATUS NOT BETWEEN '30' AND '39') OR CLAIM_TYPE IN('O','L')) THEN 1 ELSE 0 END INOPLTC_EXC,
+         CASE WHEN CLAIM_TYPE IN('I','M','O','L') AND (ENCSRGGRP_SEQ>0 or diagrp_seq>0) THEN 1 ELSE 0 END INOPLTCM_EXC,
+         CASE WHEN CLAIM_TYPE IN('I','M','O','L') AND (ENCSRGGRP_SEQ>0 or diagrp_seq>0) AND CDE_ENC_REC_IND <> '0' THEN 1 ELSE 0 END INOPLTCM_EXCQ2,
+         CASE WHEN CLAIM_TYPE IN ('M') AND CDE_ENC_REC_IND <> '0' AND (substr(proc_code,1,1) in('E','K')  or
+         (cde_enc_proc_type ='7' and substr(proc_code_enc,1,1) in('E','K'))) THEN 1 ELSE 0 END AS MOD_DME,
+         CASE WHEN CLAIM_TYPE IN ('M') AND CDE_ENC_REC_IND <> '0' AND (substr(proc_code,1,1) in('7')  or
+         (cde_enc_proc_type ='7' and substr(proc_code_enc,1,1) in('7'))) THEN 1 ELSE 0 END AS MOD_LABXRAY,
+         case when cde_enc_rec_ind <> '0' and claim_type in('M') and
+         ((proc_code between '10021' and '69990' and substr(proc_code,5,1) in('0','1','2','3','4','5','6','7','8','9') and proc_code_desc not in ('Unknown','N/A')) or
+         (cde_enc_proc_type ='7' and proc_code_enc between '10021' and '69990' and substr(proc_code_enc,5,1) in('0','1','2','3','4','5','6','7','8','9') and
+         proc_code_enc_desc not in('Unknown','N/A'))) THEN 1 ELSE 0 END AS MOD_SURGERYM,
+         1 AS REX
+         FROM MCO_MBHP_DOS_&MONYY.
+         )
+         GROUP BY CDE_ENC_MCO
+
+CREATE TABLE MCO_MBH_TDOS_&MONYY.
+         NOLOGGING
+         COMPRESS
+         AS
+         SELECT CDE_ENC_MCO,DOS_YRMONTH,
+         SUM(INPATS) AS TOT_INPAT,
+         SUM(OUTPATS) AS TOT_OUTPT,
+         SUM(OUTPATSQ2) AS TOT_OUTPTQ2, /*ADJUST B/C Q2 REMOVED REC_IND=0 FROM DATA PULL*/
+         SUM(MED) AS TOT_MED,
+         SUM(MEDQ2) AS TOT_MEDQ2,  /*ADJUST B/C Q2 REMOVED REC_IND=0 FROM DATA PULL*/
+         SUM(PHARMS) AS TOT_PHARM,
+         SUM(DENT) AS TOT_DENT,
+         SUM(DENTQ2) AS TOT_DENTQ2, /*ADJUST B/C Q2 REMOVED REC_IND=0 FROM DATA PULL*/
+         SUM(LTCS) AS TOT_LTC,
+         SUM(FACILTY) AS TOT_FACILTY,
+         SUM(ADJUST) AS TOT_ADJST,
+         SUM(MISS) AS TOT_MISSING,
+         SUM(NOT_PRM_DNT) AS TOT_NON_PHRM_DENT, /* USED TO COMPUTE % ON NON PHARM AND DENTAL CLAIMS, WHICH DON'T HAVE DX */
+         SUM(NOT_PRM_DNTQ2) AS TOT_NON_PHRM_DENTQ2, /*ADJUST B/C Q2 REMOVED REC_IND=0 FROM DATA PULL*/
+         SUM(PHARM_SCRIPT) AS TOT_PHARM_SCRIPT, /* USED TO COMPUTE % ON PRESCRIBING ID/TYPE OTC ARE EXCLUDED PER SPECS*/
+         SUM(NON_PHARM) AS TOT_NONPHARM, /*added 7.2.18*/
+         SUM(NOTCOMPOUND) AS TOT_NOTCOMPOUND,
+         SUM(PHARMSCRIPT_NOTCOMP) AS TOT_PHARMSCRIPT_NOTCOMP,
+         (SUM(INPATS) + SUM(MED)) AS TOT_INP_MED,
+         (SUM(INPATS) + SUM(LTCS)) AS TOT_INPT_LTC,
+         	    (SUM(INPATS) + SUM(OUTPATS)) AS TOT_INPT_OUTPT,
+         (SUM(INPATS) + SUM(OUTPATS) + SUM(LTCS)) AS TOT_INPT_OUTPT_LTC,
+         SUM(INOUTLTC_NOART) AS TOT_INOUTLTC_NOART,
+         SUM(INPAT_FILTER1) AS TOT_INPAT_FILTER1,
+         SUM(INPAT_FILTER2) AS TOT_INPAT_FILTER2,
+         SUM(INOPLTC_EXC) AS TOT_INP_OP_LTC_EXC,
+         SUM(INOPLTCM_EXC) AS TOT_INP_OP_LTC_M_EXC,
+         SUM(INOPLTCM_EXCQ2) AS TOT_INP_OP_LTC_M_EXCQ2, /*ADJUST B/C Q2 REMOVED REC_IND=0 FROM DATA PULL*/
+         SUM(MOD_DME) AS TOT_MOD_DME,
+         SUM(MOD_LABXRAY) AS TOT_MOD_LABXRAY,
+         SUM(MOD_SURGERYM) AS TOT_MOD_SURGERYM,
+         SUM(REX) AS TOT_REX
+         FROM
+         (SELECT
+         CDE_ENC_MCO,
+         TO_CHAR(DOS_FROM,'YYYY-MM') AS DOS_YRMONTH,
+         CASE WHEN CLAIM_TYPE = 'I' THEN 1 ELSE 0 END INPATS,
+         CASE WHEN CLAIM_TYPE = 'P' THEN 1 ELSE 0 END PHARMS,
+         CASE WHEN CLAIM_TYPE = 'O' THEN 1 ELSE 0 END OUTPATS,
+         CASE WHEN CLAIM_TYPE = 'O' AND CDE_ENC_REC_IND <> '0' THEN 1 ELSE 0 END OUTPATSQ2,
+         CASE WHEN CLAIM_TYPE = 'L' THEN 1 ELSE 0 END LTCS,
+         CASE WHEN CLAIM_TYPE IN ('M') THEN 1 ELSE 0 END MED,
+         CASE WHEN CLAIM_TYPE IN ('M') AND CDE_ENC_REC_IND <> '0' THEN 1 ELSE 0 END MEDQ2,
+         CASE WHEN CLAIM_TYPE IN ('D') THEN 1 ELSE 0 END DENT,
+         CASE WHEN CLAIM_TYPE IN ('D') AND CDE_ENC_REC_IND <> '0' THEN 1 ELSE 0 END DENTQ2,
+         CASE WHEN CLAIM_TYPE NOT IN ('P','D') THEN 1 ELSE 0 END NOT_PRM_DNT,
+         CASE WHEN CLAIM_TYPE NOT IN ('P','D') AND CDE_ENC_REC_IND <> '0' THEN 1 ELSE 0 END NOT_PRM_DNTQ2,
+         CASE WHEN CLAIM_TYPE = 'P' AND CDE_DRUG_CLASS = 'F' THEN 1 ELSE 0 END PHARM_SCRIPT,
+         CASE WHEN CLAIM_TYPE <> 'P' THEN 1 ELSE 0 END AS NON_PHARM, /*added 7.2.18 for update to quantity logic*/
+         CASE WHEN IND_ENC_COMPOUND='2' THEN 1 ELSE 0 END AS NOTCOMPOUND,
+         CASE WHEN CLAIM_TYPE = 'P' AND CDE_DRUG_CLASS = 'F' AND IND_ENC_COMPOUND='2'
+         THEN 1 ELSE 0 END PHARMSCRIPT_NOTCOMP,
+         CASE WHEN SUBSTR(CDE_ENC_CLAIM_CAT,1,1) = '1' THEN 1 ELSE 0 END FACILTY,
+         CASE WHEN cde_clm_disposition <> 'O' THEN 1 ELSE 0 END ADJUST,
+         CASE WHEN CLAIM_TYPE IN (' ','-','+') THEN 1 ELSE 0 END MISS,
+         CASE WHEN CLAIM_TYPE='I' AND substr(cde_type_of_bill_enc,1,2) <> '21' and 
+                   SUBSTR(DSC_PATIENT_STATUS,1,2) NOT BETWEEN '31' AND '39' THEN 1 ELSE 0 END INPAT_FILTER1,
+         CASE WHEN CLAIM_TYPE IN('I') AND substr(cde_type_of_bill_enc,1,2) not in('12','22','42','62','81','82') THEN 1 ELSE 0 END AS INPAT_FILTER2,
+         CASE WHEN CLAIM_TYPE IN('I','O','L') and cde_enc_rec_ind <> '0' THEN 1 ELSE 0 END AS INOUTLTC_NOART,
+         CASE WHEN ((CLAIM_TYPE='I' AND CDE_PATIENT_STATUS NOT BETWEEN '30' AND '39') OR CLAIM_TYPE IN('O','L')) THEN 1 ELSE 0 END INOPLTC_EXC,
+         CASE WHEN CLAIM_TYPE IN('I','M','O','L') AND (ENCSRGGRP_SEQ>0 or diagrp_seq>0) THEN 1 ELSE 0 END INOPLTCM_EXC,
+         CASE WHEN CLAIM_TYPE IN('I','M','O','L') AND (ENCSRGGRP_SEQ>0 or diagrp_seq>0) AND CDE_ENC_REC_IND <> '0' THEN 1 ELSE 0 END INOPLTCM_EXCQ2,
+         CASE WHEN CLAIM_TYPE IN ('M') AND CDE_ENC_REC_IND <> '0' AND (substr(proc_code,1,1) in('E','K')  or
+         (cde_enc_proc_type ='7' and substr(proc_code_enc,1,1) in('E','K'))) THEN 1 ELSE 0 END AS MOD_DME,
+         CASE WHEN CLAIM_TYPE IN ('M') AND CDE_ENC_REC_IND <> '0' AND (substr(proc_code,1,1) in('7')  or
+         (cde_enc_proc_type ='7' and substr(proc_code_enc,1,1) in('7'))) THEN 1 ELSE 0 END AS MOD_LABXRAY,
+         case when cde_enc_rec_ind <> '0' and claim_type in('M') and
+         ((proc_code between '10021' and '69990' and substr(proc_code,5,1) in('0','1','2','3','4','5','6','7','8','9') and proc_code_desc not in ('Unknown','N/A')) or
+         (cde_enc_proc_type ='7' and proc_code_enc between '10021' and '69990' and substr(proc_code_enc,5,1) in('0','1','2','3','4','5','6','7','8','9') and
+         proc_code_enc_desc not in('Unknown','N/A'))) THEN 1 ELSE 0 END AS MOD_SURGERYM,
+         1 AS REX
+         FROM MCO_MBHP_DOS_&MONYY.
+         )
+         GROUP BY CDE_ENC_MCO ,DOS_YRMONTH
+         ORDER BY CDE_ENC_MCO ,DOS_YRMONTH
+
+CREATE TABLE MCO_MBH_FLDREX_&MONYY.
+         NOLOGGING
+         COMPRESS
+         AS
+         select   FIRSTX.CDE_ENC_MCO,
+         SUM(FIRSTX.ID_MEDICAID1) AS ID_MEDICAID2,
+         	 SUM(FIRSTX.DOS_FROM1) AS DOS_FROM2,
+         	 SUM(FIRSTX.DOS_THRU1) AS DOS_THRU2,
+         	 SUM(FIRSTX.SERV_PROV_ID1) AS SERV_PROV_ID2,
+         	 SUM(FIRSTX.SERV_PROV_ID_TYP1) AS SERV_PROV_ID_TYP2,
+         SUM(FIRSTX.SERV_PROV_SPEC1) AS SERV_PROV_SPEC2,
+         SUM(FIRSTX.BILL_PROV_ID1) AS BILL_PROV_ID2,
+         SUM(FIRSTX.BILL_PROV_ID_TYP1) AS BILL_PROV_ID_TYP2,
+         SUM(FIRSTX.PRESCRIBE_PROV1) AS PRESCRIBE_PROV2,
+         SUM(FIRSTX.PRES_PROV_ID_TYP1) AS PRES_PROV_ID_TYP2,
+         SUM(FIRSTX.PRIMARY_DIAG1) AS PRIMARY_DIAG2,
+         SUM(FIRSTX.CDE_ICD_VERSION1) AS CDE_ICD_VERSION2,
+         SUM(FIRSTX.PROC_CODE1) AS PROC_CODE2,
+         SUM(FIRSTX.PROC_CODE1a) AS PROC_CODE2_m,  /*professional claims only*/
+         SUM(FIRSTX.PROC_CODE1b) AS PROC_CODE2_o_d, /*outpt/dental claims only*/
+         SUM(FIRSTX.PROC_MOD_DME) AS PROC_MOD_DME2,
+         SUM(FIRSTX.PROC_MOD_LABXRAY) AS PROC_MOD_LABXRAY2,
+         SUM(FIRSTX.PROC_MOD_SURGERYM) AS PROC_MOD_SURGERYM2,
+         SUM(FIRSTX.QTY_UNITS_BILLED1) AS QTY_UNIT_BILL2,
+         SUM(FIRSTX.BILL_PRV_NPI) AS BILL_NPI2,
+         	 SUM(FIRSTX.SERV_PRV_NPI) AS SERV_NPI2,
+         SUM(FIRSTX.SCRIPTWRIT1) AS SCRIPTWRIT2,
+         	 SUM(FIRSTX.REFILL1) AS REFILL2,
+         	 SUM(FIRSTX.DISPENSE1) AS DISPENSE2,
+         SUM(FIRSTX.SCRIPT1) AS SCRIPT2,
+         SUM(FIRSTX.FEE1) AS FEE2,
+         	 SUM(FIRSTX.NDC1) AS NDC2,
+         	 SUM(FIRSTX.CLAIMCAT1) AS CLAIMCAT2,
+         SUM(FIRSTX.RECIND1) AS RECIND2,
+         SUM(FIRSTX.AMTBILL1) AS AMTBILL2,
+         SUM(FIRSTX.AMTPAY1) AS AMTPAY2,
+         SUM(FIRSTX.AMTALLOW1) AS AMTALLOW2,
+         SUM(FIRSTX.ADMITDT1) AS ADMITDT2,
+         SUM(FIRSTX.DISCHARGE_DT1) AS DISCHARGEDT2,
+         SUM(FIRSTX.CDE_DIAG_ADMIT1) AS CDE_DIAG_ADMIT2,
+         SUM(FIRSTX.CDE_PATIENT_STATUS1) AS CDE_PATIENT_STATUS2,
+         SUM(FIRSTX.CDE_ADMIT_TYPE1) AS CDE_ADMIT_TYPE2,
+         SUM(FIRSTX.CDE_ADMIT_SOURCE1) AS CDE_ADMIT_SOURCE2,
+         SUM(FIRSTX.SVCCAT1) AS SVCCAT2,
+         SUM(FIRSTX.SERV_PROV_TYP1) AS SERV_PROV_TYP2,
+         SUM(FIRSTX.REV_CODE1) AS REV_CODE2,
+         SUM(FIRSTX.POS_CODE1) AS POS_CODE2,
+         SUM(FIRSTX.POS_TYPE1) AS POS_TYPE2,
+         SUM(FIRSTX.PAID_DT1) AS PAID_DT2,
+         SUM(FIRSTX.BILL_ID_LOC1) AS BILL_ID_LOC2,
+         SUM(FIRSTX.SERV_ID_LOC1) AS SERV_ID_LOC2,
+         SUM(FIRSTX.PRS_ID_LOC1) AS PRS_ID_LOC2,
+         SUM(FIRSTX.ACO1) AS ACO2,
+         SUM(FIRSTX.AMTTPL1) AS AMTTPL2,
+         SUM(FIRSTX.AMTCOPAY1) AS AMTCOPAY2,
+         SUM(FIRSTX.AMTCOINS1) AS AMTCOINS2,
+         SUM(FIRSTX.CLMDISP1) AS CLMDISP2,
+         SUM(FIRSTX.CLMNUM1) AS CLMNUM2,
+         SUM(FIRSTX.CLMSUF1) AS CLMSUF2,
+         SUM(FIRSTX.NUMLOGCLM1) AS NUMLOGCLM2
+         FROM
+         /*********************************** SUB SELECT TO ASSESS AND ASSIGN VALUES *************************/
+         (SELECT
+         CDE_ENC_MCO,
+         /* MEMBER ID - Field 76*/
+         case when substr(MX.ID_MEDICAID,1,1) = '1' then 1 else 0 end ID_MEDICAID1,
+         /* FROM DOS - Field 17 */
+         case when MX.DOS_FROM IS NOT NULL THEN 1 else 0 end DOS_FROM1 ,
+         /* THRU DOS - Field 18 */
+         case when MX.DOS_THRU IS NOT NULL then 1 else 0 end DOS_THRU1 ,
+         /*  SERVICING PROVIDER ID - Field 50*/
+         CASE WHEN ENC_SERV_PROV_ID = '+' THEN 0
+         WHEN ENC_SERV_PROV_ID = '-' THEN 0
+         WHEN ENC_SERV_PROV_ID = ' ' THEN 0
+         else 1
+         END SERV_PROV_ID1,
+         /* SERVICING PROVIDER ID TYPE - Field 51 */
+         case when substr(SERV_PROV_ID_TYPE,1,1)  IN ('1','6','9')  then 1 else 0 end SERV_PROV_ID_TYP1 ,
+         /* SERVICING PROVIDER TYPE */
+         CASE WHEN ENC_SERV_PROV_TYPE NOT IN (' ','-','+','#') THEN 1 else 0 END SERV_PROV_TYP1,
+         /* SERVICING SPECIALTY */
+         CASE WHEN SERV_PROV_SPECIALTY NOT IN (' ','-','+','#') THEN 1 else 0 END SERV_PROV_SPEC1,
+         /* BILLING PROVIDER ID - Field 58*/
+         CASE WHEN MX.ENC_BILL_PROV_ID = '+' THEN 0
+         WHEN MX.ENC_BILL_PROV_ID = '-' THEN 0
+         WHEN MX.ENC_BILL_PROV_ID = ' ' THEN 0
+         else 1
+         END BILL_PROV_ID1 ,
+         /* BILLING PROVIDER ID TYPE - Field 93 */
+         case when substr(BILL_PROV_ID_TYPE,1,1)  IN ('1','6','9')  then 1 else 0 end BILL_PROV_ID_TYP1 ,
+         /* PRESCRIBING PROVIDER ID - ON PHARM CLAIMS ONLY - Field 81 */
+         CASE WHEN CLAIM_TYPE = 'P' AND CDE_DRUG_CLASS='F' AND ENC_PRES_PROV_ID NOT IN ('+','-',' ') THEN 1
+         else 0
+         END PRESCRIBE_PROV1,
+         /* PRESCRIBING PROVIDER ID TYPE - ON PHARM CLAIMS ONLY - Field 95 */
+         case when CLAIM_TYPE='P' AND CDE_DRUG_CLASS='F' AND substr(MX.PRES_PROV_ID_TYPE,1,1) In ('1','6','8') then 1
+         else 0
+         END PRES_PROV_ID_TYP1,
+         /* PRIMARY DIAGNOSIS */
+         case when CDE_ENC_REC_IND <> '0' AND CLAIM_TYPE IN('I','M','O','L') AND primary_diag not in ('+','-', ' ') then 1 else 0 end as PRIMARY_DIAG1,
+         /* CDE_ICD_VERSION */
+         case when CDE_ENC_REC_IND <> '0' AND CLAIM_TYPE IN('I','M','O','L') AND cde_icd_version in('9','10')  and (ENCSRGGRP_SEQ>0 or diagrp_seq>0)
+         then 1 else 0 end as CDE_ICD_VERSION1,
+         /* PROC_CODE */ 
+         case when CDE_ENC_REC_IND <> '0' AND  ((claim_type in('O') and
+         (proc_code not in(' ','-','+','#') or ((cde_revenue between 250 and 259) or (cde_revenue = 260) or  (cde_revenue between 262 and 279) or
+         (cde_revenue between 370 and 372) or (cde_revenue = 374) or (cde_revenue = 379) or (cde_revenue = 710) or
+         (cde_revenue = 839) or (cde_revenue = 902) or (cde_revenue = 946) or (cde_revenue = 947) or (cde_revenue = 961) or
+         (cde_revenue = 962) or (cde_revenue = 963) or (cde_revenue = 973) or (cde_revenue = 974) or (cde_revenue = 975) or
+         (cde_revenue = 981) or (cde_revenue = 982) or (cde_revenue = 983) or (cde_revenue = 988)))) or
+         (claim_type in('D','M') and proc_code not in(' ','-','+','#')) or
+         (claim_type in ('O','D','M') and cde_enc_proc_type ='7' and proc_code_enc not in(' ','-','+','#')))
+         then 1 else 0 end as proc_code1,
+         /* PROC_CODE: professional claims only*/
+         case when CDE_ENC_REC_IND <> '0' AND claim_type in('M') and (proc_code not in(' ','-','+','#') or 
+                   (cde_enc_proc_type ='7' and proc_code_enc not in(' ','-','+','#')))
+                   then 1 else 0 
+         end as proc_code1a,
+         /* PROC_CODE: outpt and dental claims only*/
+         case when CDE_ENC_REC_IND <> '0' AND ((claim_type in('O') and
+         (proc_code not in(' ','-','+','#') or ((cde_revenue between 250 and 259) or (cde_revenue = 260) or  (cde_revenue between 262 and 279) or
+         (cde_revenue between 370 and 372) or (cde_revenue = 374) or (cde_revenue = 379) or (cde_revenue = 710) or
+         (cde_revenue = 839) or (cde_revenue = 902) or (cde_revenue = 946) or (cde_revenue = 947) or (cde_revenue = 961) or
+         (cde_revenue = 962) or (cde_revenue = 963) or (cde_revenue = 973) or (cde_revenue = 974) or (cde_revenue = 975) or
+         (cde_revenue = 981) or (cde_revenue = 982) or (cde_revenue = 983) or (cde_revenue = 988)))) or
+         (claim_type in('D') and proc_code not in(' ','-','+','#')) or
+         (claim_type in ('O','D') and cde_enc_proc_type ='7' and proc_code_enc not in(' ','-','+','#')))
+         then 1 else 0 end as proc_code1b,
+         /* PROC MODIFIER claim type M (DME) Janes mods */
+         case when CDE_ENC_REC_IND <> '0' AND claim_type in('M') and (substr(proc_code,1,1) in('E','K')  or
+         (cde_enc_proc_type ='7' and substr(proc_code_enc,1,1) in('E','K'))) and
+         (proc_modifier1 in('RR','NU','UE') or proc_modifier2 in('RR','NU','UE') or proc_modifier3 in('RR','NU','UE') or proc_modifier4 in('RR','NU','UE'))
+         then 1 else 0 end as proc_mod_DME,
+         /* PROC MODIFIER claim type M (lab/xray) all mods */
+         case when CDE_ENC_REC_IND <> '0' AND claim_type in('M') and (substr(proc_code,1,1) in('7')  or
+         (cde_enc_proc_type ='7' and substr(proc_code_enc,1,1) in('7'))) and
+         (proc_modifier1 not in('+',' ','-') or proc_modifier2 not in('+',' ','-') or proc_modifier3 not in('+',' ','-') or proc_modifier4 not in('+',' ','-'))
+         then 1 else 0 end as proc_mod_LABXRAY,
+         /* PROC MODIFIER claim type M (surgery) all mods */
+         case when cde_enc_rec_ind <> '0' and claim_type in('M') and
+         ((proc_code between '10021' and '69990' and substr(proc_code,5,1) in('0','1','2','3','4','5','6','7','8','9') and proc_code_desc not in ('Unknown','N/A')) or
+         (cde_enc_proc_type ='7' and proc_code_enc between '10021' and '69990' and substr(proc_code_enc,5,1) in('0','1','2','3','4','5','6','7','8','9') and
+         proc_code_enc_desc not in('Unknown','N/A'))) and
+         (proc_modifier1 not in('+',' ','-') or proc_modifier2 not in('+',' ','-') or proc_modifier3 not in('+',' ','-') or proc_modifier4 not in('+',' ','-'))
+         then 1 else 0 end as proc_mod_SURGERYM,
+         /* QTY UNITS BILLED */
+         case when CLAIM_TYPE <> 'P' and qty_units_billed is not null then 1 else 0 end as QTY_UNITS_BILLED1, /*updated 7.2.18*/
+         /* BILLING PROVIDER NPI */
+         /*added zero as fail 8.26.16 see email Fallon and NPIs generally*/
+         case when CDE_ENC_REC_IND <> '0' AND CLAIM_TYPE not in ('P','D') and MX.BILL_NPI NOT IN('MISSING','+','-',' ','0') then 1 else 0 end as BILL_PRV_NPI,
+         /* SERVICING PROVIDER NPI */
+         /*added zero as fail 8.26.16 see email Fallon and NPIs generally*/
+         case when CDE_ENC_REC_IND <> '0' AND CLAIM_TYPE not in ('P','D') and MX.SERV_NPI NOT IN('MISSING','+','-',' ','0') then 1 else 0 end as SERV_PRV_NPI,
+         /* DATE SCRIPT WRITTEN - Field 82*/
+         case when MX.claim_type='P' AND CDE_DRUG_CLASS='F' AND MX.DATE_SCRIPT_WRITTEN IS NOT NULL
+         then 1 else 0 end as scriptwrit1,
+         /* REFILL INDICATOR - Field 40 */
+         case when MX.claim_type='P' AND CDE_DRUG_CLASS='F' AND MX.QTY_REFILL >=0 THEN 1 ELSE 0 END AS REFILL1,
+         /* DISPENSE AS WRITTEN - FIELD 41 */
+         CASE WHEN MX.claim_type='P' AND CDE_DRUG_CLASS='F' AND
+         SUBSTR(MX.DSC_ENC_DISP_AS_WRTN,1,1) IN('0','1','2','3','4','5','6','7','8','9')
+         THEN 1 ELSE 0 END AS DISPENSE1,
+         /* PRESCRIPTION NUMBER - #198 */
+         CASE WHEN MX.claim_type='P' AND CDE_DRUG_CLASS='F' AND MX.RX_NUMBER IS NOT NULL THEN 1 ELSE 0 END AS SCRIPT1,
+         /* DISPENSING FEE - #67 */
+         CASE WHEN MX.claim_type='P' AND CDE_DRUG_CLASS='F' AND MX.AMT_NDC_PROFEE IS NOT NULL THEN 1 ELSE 0 END AS FEE1,
+         /* NDC CODE - #37 */
+         /* Only drugs not compounded 2=No, 1=Yes */
+         CASE WHEN MX.claim_type='P' AND CDE_DRUG_CLASS='F' AND MX.IND_ENC_COMPOUND='2' AND MX.CDE_NDC NOT IN (' ','-','+','#')
+         THEN 1 ELSE 0 END AS NDC1,
+         /* CLAIM CATEGORY - #2 */
+         CASE WHEN SUBSTR(MX.DSC_ENC_CLAIM_CAT,1,1) IN ('1','2','3','4','5','6','7') THEN 1 ELSE 0 END AS CLAIMCAT1,
+         /* SERVICE CATEGORY */
+         CASE WHEN CDE_ENC_SVC_CAT not in(' ','-','+','#') then 1 else 0 end as SVCCAT1,
+         /* RECORD INDICATOR - #4 */
+         CASE WHEN SUBSTR(MX.DSC_ENC_REC_IND,1,1) IN ('0','1','2','3','4','5','6','7') THEN 1 ELSE 0 END AS RECIND1,
+         /* AMOUNT BILLED - #60 */
+         CASE WHEN MX.AMT_BILLED >=0 THEN 1 ELSE 0 END AS AMTBILL1,
+         /* NET AMOUNT PAID - #68 */
+         /* THERE ARE NEGATIVE VALUES HOW TO CAPTURE? IS NULL; updated to say amt_paid>=0 b/c there were ~9 with negative values*/
+         CASE WHEN MX.AMT_PAID >=0 THEN 1 ELSE 0 END AS AMTPAY1,
+         /* AMOUNT ALLOWED - #86 */
+         /* THERE ARE NEGATIVE VALUES HOW TO CAPTURE? IS NULL; updated to say amt_paid>=0 b/c there were ~9 with negative values*/
+         CASE WHEN MX.AMT_ALLOWED >=0 THEN 1 ELSE 0 END AS AMTALLOW1,
+         /* ADMISSION DATE */
+         case when MX.claim_type IN('I','L') and
+         (admit_dt is not null  and admit_dt <> '01JAN1900') and
+         (admit_dt <= discharge_dt or discharge_dt is null)
+         THEN 1 ELSE 0 END AS ADMITDT1,
+         /* DISCHARGE DATE */
+         case when (CLAIM_TYPE='I' AND substr(cde_type_of_bill_enc,1,2) <> '21' and SUBSTR(DSC_PATIENT_STATUS,1,2) NOT BETWEEN '31' AND '39')
+         AND (MX.DISCHARGE_DT IS NOT NULL and discharge_dt >= admit_dt) THEN 1 else 0 end DISCHARGE_DT1,
+         /*old*/
+         /*case when (CLAIM_TYPE='I' AND cde_place_of_service <> '221' and SUBSTR(DSC_PATIENT_STATUS,1,2) NOT BETWEEN '30' AND '39')
+         AND (MX.DISCHARGE_DT IS NOT NULL and discharge_dt >= admit_dt) THEN 1 else 0 end DISCHARGE_DT1,*/
+         /* ADMITTING DIAGNOSIS */
+         /*NT edit 7.26.18*/
+         case when CLAIM_TYPE IN('I') AND substr(cde_type_of_bill_enc,1,2) not in('12','22','42','62','81','82') AND CDE_DIAG_ADMIT not IN ('+','-', ' ')
+         THEN 1 else 0 END CDE_DIAG_ADMIT1,
+         /*old*/
+         /*case when CLAIM_TYPE IN('I') AND cde_place_of_service not in('212','222','242','262','281','282') AND CDE_DIAG_ADMIT not IN ('+','-', ' ')
+         THEN 1 else 0 END CDE_DIAG_ADMIT1,*/
+         /* PATIENT DISCHARGE STATUS */
+         case when CLAIM_TYPE IN('I','O') AND cde_patient_status not in ('+', '-', ' ') then 1 else 0 end as CDE_PATIENT_STATUS1,
+         /* TYPE OF ADMISSION */
+         case when CLAIM_TYPE IN('I','L') AND cde_admit_type in ('1','2','3','4','5','6','7','8','9') then 1 else 0 end as cde_admit_type1,
+         /* SOURCE OF ADMISSION */
+         case when CLAIM_TYPE IN('I','L') AND cde_admit_source  in ('1','2','3','4','5','6','7','8','9','A','B','C','D','E','F') then 1 else 0 end as cde_admit_source1,
+         /* REVENUE CODE */
+         case when CLAIM_TYPE IN('I','O','L') AND substr(dsc_revenue,1,1) in ('0','1','2','3','4','5','6','7','8','9') and cde_enc_rec_ind <> '0'
+         then 1 else 0 end as rev_code1,
+         /*updated 5.29.2018 b/c DW storing POS and TOB separately now*/
+         /* PLACE OF SERVICE */
+         /*case when CLAIM_TYPE NOT IN('P','D') AND SUBSTR(place_of_service,1,1) IN ('0','1','2','3','4','5','6','7','8','9') and
+         SUBSTR(place_of_service,2,1) IN ('0','1','2','3','4','5','6','7','8','9') THEN 1 else 0 end as pos_code1,*/
+         /* PLACE OF SERVICE (updated) */
+         case when CLAIM_TYPE NOT IN('P','D') AND
+         ( (substr(cde_place_of_service_enc,1,1) in('0','1','2','3','4','5','6','7','8','9') and
+         substr(cde_place_of_service_enc,2,1) in('0','1','2','3','4','5','6','7','8','9'))
+         or
+         (substr(cde_type_of_bill_enc,1,1) in('0','1','2','3','4','5','6','7','8','9') and
+         substr(cde_type_of_bill_enc,2,1) in('0','1','2','3','4','5','6','7','8','9'))) then 1 else 0 end as pos_code1,
+         /*updated 5.29.2018 b/c DW storing POS and TOB separately now and POS type has been retired*/
+         /* PLACE OF SERVICE TYPE */
+         /*case when claim_type not in('P','D') and 											
+         (											
+         ((cde_enc_claim_cat ='1' and substr(cde_place_of_service,1,1)='2') or (cde_enc_claim_cat ='2' and substr(cde_place_of_service,1,1)='1'))											
+         or (cde_enc_claim_cat in('3','4','5') and substr(cde_place_of_service,1,1)='1') 											
+         or (cde_enc_claim_cat in('6') and substr(cde_place_of_service,1,1)='2')											
+         )											
+         and SUBSTR(cde_place_of_service,2,1) IN ('0','1','2','3','4','5','6','7','8','9') and 											
+         SUBSTR(cde_place_of_service,3,1) IN ('0','1','2','3','4','5','6','7','8','9') THEN 1 else 0 end as pos_type1,*/
+         /* PLACE OF SERVICE TYPE (updated) */
+         case when CLAIM_TYPE NOT IN('P','D') AND
+         ((cde_enc_claim_cat in('2','3','4','5') and
+         substr(cde_place_of_service_enc,1,1) in('0','1','2','3','4','5','6','7','8','9') and
+         substr(cde_place_of_service_enc,2,1) in('0','1','2','3','4','5','6','7','8','9'))
+         or
+         (cde_enc_claim_cat in('1','6') and
+         substr(cde_type_of_bill_enc,1,1) in('0','1','2','3','4','5','6','7','8','9') and
+         substr(cde_type_of_bill_enc,2,1) in('0','1','2','3','4','5','6','7','8','9'))) then 1 else 0 end as pos_type1,
+         /*Paid Date -Field 45*/
+         case when MX.PAID_DT IS NOT NULL THEN 1 else 0 end PAID_DT1,	
+         /*Billing Provider ID address location code- field 223*/	
+         case when bill_prov_id_loc_code not in(' ','+','#','-') then 1 else 0 end as bill_id_loc1,
+         									
+         /*Servicing Provider ID address location code- field 227*/	
+         case when serv_prov_id_loc_code not in(' ','+','#','-') then 1 else 0 end as serv_id_loc1,
+         		
+         /*Prescribing Provider ID address location code- field 224*/	
+         case when CLAIM_TYPE = 'P' AND CDE_DRUG_CLASS = 'F'  and prs_prov_id_loc_code not in(' ','+','#','-') then 1 else 0 end as prs_id_loc1,
+         /*ENTITY PIDSLs are used to derive cde_enc_MCO and cde_enc_ACO names, and are available in ODS only: ACO*/
+         case when cde_enc_aco not in(' ','+','#','-') then 1 else 0 end as aco1,
+         /* TPL AMOUNT */
+         case when amt_tpl >= 0 then 1 else 0 end as amttpl1,
+         /* COPAY AMOUNT */
+         case when amt_copay >= 0 then 1 else 0 end as amtcopay1,
+         /* COINSURANCE AMOUNT */
+         case when amt_coinsurance >=0 then 1 else 0 end as amtcoins1,
+         /* RECORD TYPE */
+         case when cde_clm_disposition in ('O','V','R','A') then 1 else 0 end as clmdisp1,
+         /* CLAIM NUMBER */
+         case when enc_claim_no is not null then 1 else 0 end as clmnum1,
+         /* CLAIM SUFFIX */
+         case when enc_claim_suffix is not null then 1 else 0 end as clmsuf1,
+         /* MOTHER-CHILD CLAIM ID */
+         case when num_logical_claim is not null then 1 else 0 end as numlogclm1
+         FROM MCO_MBHP_DOS_&MONYY. MX
+         )  FIRSTX
+         GROUP BY FIRSTX.CDE_ENC_MCO
+
+CREATE TABLE MCO_MBH_FRDOS_&MONYY.
+         NOLOGGING
+         COMPRESS
+         AS
+         select   FIRSTX.CDE_ENC_MCO,
+         firstx.DOS_YRMONTH,
+         SUM(FIRSTX.ID_MEDICAID1) AS ID_MEDICAID2,
+         	 SUM(FIRSTX.DOS_FROM1) AS DOS_FROM2,
+         	 SUM(FIRSTX.DOS_THRU1) AS DOS_THRU2,
+         	 SUM(FIRSTX.SERV_PROV_ID1) AS SERV_PROV_ID2,
+         	 SUM(FIRSTX.SERV_PROV_ID_TYP1) AS SERV_PROV_ID_TYP2,
+         SUM(FIRSTX.SERV_PROV_SPEC1) AS SERV_PROV_SPEC2,
+         SUM(FIRSTX.BILL_PROV_ID1) AS BILL_PROV_ID2,
+         SUM(FIRSTX.BILL_PROV_ID_TYP1) AS BILL_PROV_ID_TYP2,
+         SUM(FIRSTX.PRESCRIBE_PROV1) AS PRESCRIBE_PROV2,
+         SUM(FIRSTX.PRES_PROV_ID_TYP1) AS PRES_PROV_ID_TYP2,
+         SUM(FIRSTX.PRIMARY_DIAG1) AS PRIMARY_DIAG2,
+         SUM(FIRSTX.CDE_ICD_VERSION1) AS CDE_ICD_VERSION2,
+         SUM(FIRSTX.PROC_CODE1) AS PROC_CODE2,
+         SUM(FIRSTX.PROC_CODE1a) AS PROC_CODE2_m,  /*professional claims only*/
+         SUM(FIRSTX.PROC_CODE1b) AS PROC_CODE2_o_d, /*outpt/dental claims only*/
+         SUM(FIRSTX.PROC_MOD_DME) AS PROC_MOD_DME2,
+         SUM(FIRSTX.PROC_MOD_LABXRAY) AS PROC_MOD_LABXRAY2,
+         SUM(FIRSTX.PROC_MOD_SURGERYM) AS PROC_MOD_SURGERYM2,
+         SUM(FIRSTX.QTY_UNITS_BILLED1) AS QTY_UNIT_BILL2,
+         SUM(FIRSTX.BILL_PRV_NPI) AS BILL_NPI2,
+         	 SUM(FIRSTX.SERV_PRV_NPI) AS SERV_NPI2,
+         SUM(FIRSTX.SCRIPTWRIT1) AS SCRIPTWRIT2,
+         	 SUM(FIRSTX.REFILL1) AS REFILL2,
+         	 SUM(FIRSTX.DISPENSE1) AS DISPENSE2,
+         SUM(FIRSTX.SCRIPT1) AS SCRIPT2,
+         SUM(FIRSTX.FEE1) AS FEE2,
+         	 SUM(FIRSTX.NDC1) AS NDC2,
+         	 SUM(FIRSTX.CLAIMCAT1) AS CLAIMCAT2,
+         SUM(FIRSTX.RECIND1) AS RECIND2,
+         SUM(FIRSTX.AMTBILL1) AS AMTBILL2,
+         SUM(FIRSTX.AMTPAY1) AS AMTPAY2,
+         SUM(FIRSTX.AMTALLOW1) AS AMTALLOW2,
+         SUM(FIRSTX.ADMITDT1) AS ADMITDT2,
+         SUM(FIRSTX.DISCHARGE_DT1) AS DISCHARGEDT2,
+         SUM(FIRSTX.CDE_DIAG_ADMIT1) AS CDE_DIAG_ADMIT2,
+         SUM(FIRSTX.CDE_PATIENT_STATUS1) AS CDE_PATIENT_STATUS2,
+         SUM(FIRSTX.CDE_ADMIT_TYPE1) AS CDE_ADMIT_TYPE2,
+         SUM(FIRSTX.CDE_ADMIT_SOURCE1) AS CDE_ADMIT_SOURCE2,
+         SUM(FIRSTX.SVCCAT1) AS SVCCAT2,
+         SUM(FIRSTX.SERV_PROV_TYP1) AS SERV_PROV_TYP2,
+         SUM(FIRSTX.REV_CODE1) AS REV_CODE2,
+         SUM(FIRSTX.POS_CODE1) AS POS_CODE2,
+         SUM(FIRSTX.POS_TYPE1) AS POS_TYPE2,
+         SUM(FIRSTX.PAID_DT1) AS PAID_DT2,
+         SUM(FIRSTX.BILL_ID_LOC1) AS BILL_ID_LOC2,
+         SUM(FIRSTX.SERV_ID_LOC1) AS SERV_ID_LOC2,
+         SUM(FIRSTX.PRS_ID_LOC1) AS PRS_ID_LOC2,
+         SUM(FIRSTX.ACO1) AS ACO2,
+         SUM(FIRSTX.AMTTPL1) AS AMTTPL2,
+         SUM(FIRSTX.AMTCOPAY1) AS AMTCOPAY2,
+         SUM(FIRSTX.AMTCOINS1) AS AMTCOINS2,
+         SUM(FIRSTX.CLMDISP1) AS CLMDISP2,
+         SUM(FIRSTX.CLMNUM1) AS CLMNUM2,
+         SUM(FIRSTX.CLMSUF1) AS CLMSUF2,
+         SUM(FIRSTX.NUMLOGCLM1) AS NUMLOGCLM2
+         FROM
+         /*********************************** SUB SELECT TO ASSESS AND ASSIGN VALUES *************************/
+         (SELECT
+         CDE_ENC_MCO,
+         TO_CHAR(DOS_FROM,'YYYY-MM') AS DOS_YRMONTH,
+         /* MEMBER ID - Field 76*/
+         case when substr(MX.ID_MEDICAID,1,1) = '1' then 1 else 0 end ID_MEDICAID1,
+         /* FROM DOS - Field 17 */
+         case when MX.DOS_FROM IS NOT NULL THEN 1 else 0 end DOS_FROM1 ,
+         /* THRU DOS - Field 18 */
+         case when MX.DOS_THRU IS NOT NULL then 1 else 0 end DOS_THRU1 ,
+         /*  SERVICING PROVIDER ID - Field 50*/
+         CASE WHEN ENC_SERV_PROV_ID = '+' THEN 0
+         WHEN ENC_SERV_PROV_ID = '-' THEN 0
+         WHEN ENC_SERV_PROV_ID = ' ' THEN 0
+         else 1
+         END SERV_PROV_ID1,
+         /* SERVICING PROVIDER ID TYPE - Field 51 */
+         case when substr(SERV_PROV_ID_TYPE,1,1)  IN ('1','6','9')  then 1 else 0 end SERV_PROV_ID_TYP1 ,
+         /* SERVICING PROVIDER TYPE */
+         CASE WHEN ENC_SERV_PROV_TYPE NOT IN (' ','-','+','#') THEN 1 else 0 END SERV_PROV_TYP1,
+         /* SERVICING SPECIALTY */
+         CASE WHEN SERV_PROV_SPECIALTY NOT IN (' ','-','+','#') THEN 1 else 0 END SERV_PROV_SPEC1,
+         /* BILLING PROVIDER ID - Field 58*/
+         CASE WHEN MX.ENC_BILL_PROV_ID = '+' THEN 0
+         WHEN MX.ENC_BILL_PROV_ID = '-' THEN 0
+         WHEN MX.ENC_BILL_PROV_ID = ' ' THEN 0
+         else 1
+         END BILL_PROV_ID1 ,
+         /* BILLING PROVIDER ID TYPE - Field 93 */
+         case when substr(BILL_PROV_ID_TYPE,1,1)  IN ('1','6','9')  then 1 else 0 end BILL_PROV_ID_TYP1 ,
+         /* PRESCRIBING PROVIDER ID - ON PHARM CLAIMS ONLY - Field 81 */
+         CASE WHEN CLAIM_TYPE = 'P' AND CDE_DRUG_CLASS='F' AND ENC_PRES_PROV_ID NOT IN ('+','-',' ') THEN 1
+         else 0
+         END PRESCRIBE_PROV1,
+         /* PRESCRIBING PROVIDER ID TYPE - ON PHARM CLAIMS ONLY - Field 95 */
+         case when CLAIM_TYPE='P' AND CDE_DRUG_CLASS='F' AND substr(MX.PRES_PROV_ID_TYPE,1,1) In ('1','6','8') then 1
+         else 0
+         END PRES_PROV_ID_TYP1,
+         /* PRIMARY DIAGNOSIS */
+         case when CDE_ENC_REC_IND <> '0' AND CLAIM_TYPE IN('I','M','O','L') AND primary_diag not in ('+','-', ' ') then 1 else 0 end as PRIMARY_DIAG1,
+         /* CDE_ICD_VERSION */
+         case when CDE_ENC_REC_IND <> '0' AND CLAIM_TYPE IN('I','M','O','L') AND cde_icd_version in('9','10')  and (ENCSRGGRP_SEQ>0 or diagrp_seq>0)
+         then 1 else 0 end as CDE_ICD_VERSION1,
+         /* PROC_CODE */
+         case when CDE_ENC_REC_IND <> '0' AND  ((claim_type in('O') and
+         (proc_code not in(' ','-','+','#') or ((cde_revenue between 250 and 259) or (cde_revenue = 260) or  (cde_revenue between 262 and 279) or
+         (cde_revenue between 370 and 372) or (cde_revenue = 374) or (cde_revenue = 379) or (cde_revenue = 710) or
+         (cde_revenue = 839) or (cde_revenue = 902) or (cde_revenue = 946) or (cde_revenue = 947) or (cde_revenue = 961) or
+         (cde_revenue = 962) or (cde_revenue = 963) or (cde_revenue = 973) or (cde_revenue = 974) or (cde_revenue = 975) or
+         (cde_revenue = 981) or (cde_revenue = 982) or (cde_revenue = 983) or (cde_revenue = 988)))) or
+         (claim_type in('D','M') and proc_code not in(' ','-','+','#')) or
+         (claim_type in ('O','D','M') and cde_enc_proc_type ='7' and proc_code_enc not in(' ','-','+','#')))
+         then 1 else 0 end as proc_code1,
+         /* PROC_CODE: professional claims only*/
+         case when CDE_ENC_REC_IND <> '0' AND claim_type in('M') and (proc_code not in(' ','-','+','#') or 
+                   (cde_enc_proc_type ='7' and proc_code_enc not in(' ','-','+','#')))
+                   then 1 else 0 
+         end as proc_code1a,
+         /* PROC_CODE: outpt and dental claims only*/
+         case when CDE_ENC_REC_IND <> '0' AND ((claim_type in('O') and
+         (proc_code not in(' ','-','+','#') or ((cde_revenue between 250 and 259) or (cde_revenue = 260) or  (cde_revenue between 262 and 279) or
+         (cde_revenue between 370 and 372) or (cde_revenue = 374) or (cde_revenue = 379) or (cde_revenue = 710) or
+         (cde_revenue = 839) or (cde_revenue = 902) or (cde_revenue = 946) or (cde_revenue = 947) or (cde_revenue = 961) or
+         (cde_revenue = 962) or (cde_revenue = 963) or (cde_revenue = 973) or (cde_revenue = 974) or (cde_revenue = 975) or
+         (cde_revenue = 981) or (cde_revenue = 982) or (cde_revenue = 983) or (cde_revenue = 988)))) or
+         (claim_type in('D') and proc_code not in(' ','-','+','#')) or
+         (claim_type in ('O','D') and cde_enc_proc_type ='7' and proc_code_enc not in(' ','-','+','#')))
+         then 1 else 0 end as proc_code1b,
+         /* PROC MODIFIER claim type M (DME) Janes mods */
+         case when CDE_ENC_REC_IND <> '0' AND claim_type in('M') and (substr(proc_code,1,1) in('E','K')  or
+         (cde_enc_proc_type ='7' and substr(proc_code_enc,1,1) in('E','K'))) and
+         (proc_modifier1 in('RR','NU','UE') or proc_modifier2 in('RR','NU','UE') or proc_modifier3 in('RR','NU','UE') or proc_modifier4 in('RR','NU','UE'))
+         then 1 else 0 end as proc_mod_DME,
+         /* PROC MODIFIER claim type M (lab/xray) all mods */
+         case when CDE_ENC_REC_IND <> '0' AND claim_type in('M') and (substr(proc_code,1,1) in('7')  or
+         (cde_enc_proc_type ='7' and substr(proc_code_enc,1,1) in('7'))) and
+         (proc_modifier1 not in('+',' ','-') or proc_modifier2 not in('+',' ','-') or proc_modifier3 not in('+',' ','-') or proc_modifier4 not in('+',' ','-'))
+         then 1 else 0 end as proc_mod_LABXRAY,
+         /* PROC MODIFIER claim type M (surgery) all mods */
+         case when cde_enc_rec_ind <> '0' and claim_type in('M') and
+         ((proc_code between '10021' and '69990' and substr(proc_code,5,1) in('0','1','2','3','4','5','6','7','8','9') and proc_code_desc not in ('Unknown','N/A')) or
+         (cde_enc_proc_type ='7' and proc_code_enc between '10021' and '69990' and substr(proc_code_enc,5,1) in('0','1','2','3','4','5','6','7','8','9') and
+         proc_code_enc_desc not in('Unknown','N/A'))) and
+         (proc_modifier1 not in('+',' ','-') or proc_modifier2 not in('+',' ','-') or proc_modifier3 not in('+',' ','-') or proc_modifier4 not in('+',' ','-'))
+         then 1 else 0 end as proc_mod_SURGERYM,
+         /* QTY UNITS BILLED */
+         case when CLAIM_TYPE <> 'P' and qty_units_billed is not null then 1 else 0 end as QTY_UNITS_BILLED1, /*updated 7.2.18*/
+         /* BILLING PROVIDER NPI */
+         /*added zero as fail 8.26.16 see email Fallon and NPIs generally*/
+         case when CDE_ENC_REC_IND <> '0' AND CLAIM_TYPE not in ('P','D') and MX.BILL_NPI NOT IN('MISSING','+','-',' ','0') then 1 else 0 end as BILL_PRV_NPI,
+         /* SERVICING PROVIDER NPI */
+         /*added zero as fail 8.26.16 see email Fallon and NPIs generally*/
+         case when CDE_ENC_REC_IND <> '0' AND CLAIM_TYPE not in ('P','D') and MX.SERV_NPI NOT IN('MISSING','+','-',' ','0') then 1 else 0 end as SERV_PRV_NPI,
+         /* DATE SCRIPT WRITTEN - Field 82*/
+         case when MX.claim_type='P' AND CDE_DRUG_CLASS='F' AND MX.DATE_SCRIPT_WRITTEN IS NOT NULL
+         then 1 else 0 end as scriptwrit1,
+         /* REFILL INDICATOR - Field 40 */
+         case when MX.claim_type='P' AND CDE_DRUG_CLASS='F' AND MX.QTY_REFILL >=0 THEN 1 ELSE 0 END AS REFILL1,
+         /* DISPENSE AS WRITTEN - FIELD 41 */
+         CASE WHEN MX.claim_type='P' AND CDE_DRUG_CLASS='F' AND
+         SUBSTR(MX.DSC_ENC_DISP_AS_WRTN,1,1) IN('0','1','2','3','4','5','6','7','8','9')
+         THEN 1 ELSE 0 END AS DISPENSE1,
+         /* PRESCRIPTION NUMBER - #198 */
+         CASE WHEN MX.claim_type='P' AND CDE_DRUG_CLASS='F' AND MX.RX_NUMBER IS NOT NULL THEN 1 ELSE 0 END AS SCRIPT1,
+         /* DISPENSING FEE - #67 */
+         CASE WHEN MX.claim_type='P' AND CDE_DRUG_CLASS='F' AND MX.AMT_NDC_PROFEE IS NOT NULL THEN 1 ELSE 0 END AS FEE1,
+         /* NDC CODE - #37 */
+         /* Only drugs not compounded 2=No, 1=Yes */
+         CASE WHEN MX.claim_type='P' AND CDE_DRUG_CLASS='F' AND  MX.IND_ENC_COMPOUND='2' AND MX.CDE_NDC NOT IN (' ','-','+','#')
+         THEN 1 ELSE 0 END AS NDC1,
+         /* CLAIM CATEGORY - #2 */
+         CASE WHEN SUBSTR(MX.DSC_ENC_CLAIM_CAT,1,1) IN ('1','2','3','4','5','6','7') THEN 1 ELSE 0 END AS CLAIMCAT1,
+         /* SERVICE CATEGORY */
+         CASE WHEN CDE_ENC_SVC_CAT not in(' ','-','+','#') then 1 else 0 end as SVCCAT1,
+         /* RECORD INDICATOR - #4 */
+         CASE WHEN SUBSTR(MX.DSC_ENC_REC_IND,1,1) IN ('0','1','2','3','4','5','6','7') THEN 1 ELSE 0 END AS RECIND1,
+         /* AMOUNT BILLED - #60 */
+         CASE WHEN MX.AMT_BILLED >=0 THEN 1 ELSE 0 END AS AMTBILL1,
+         /* NET AMOUNT PAID - #68 */
+         /* THERE ARE NEGATIVE VALUES HOW TO CAPTURE? IS NULL; updated to say amt_paid>=0 b/c there were ~9 with negative values*/
+         CASE WHEN MX.AMT_PAID >=0 THEN 1 ELSE 0 END AS AMTPAY1,
+         /* AMOUNT ALLOWED - #86 */
+         /* THERE ARE NEGATIVE VALUES HOW TO CAPTURE? IS NULL; updated to say amt_paid>=0 b/c there were ~9 with negative values*/
+         CASE WHEN MX.AMT_ALLOWED >=0 THEN 1 ELSE 0 END AS AMTALLOW1,
+         /* ADMISSION DATE */
+         case when MX.claim_type IN('I','L') and
+         (admit_dt is not null  and admit_dt <> '01JAN1900') and
+         (admit_dt <= discharge_dt or discharge_dt is null)
+         THEN 1 ELSE 0 END AS ADMITDT1,
+         /* DISCHARGE DATE */
+         case when (CLAIM_TYPE='I' AND substr(cde_type_of_bill_enc,1,2) <> '21' and SUBSTR(DSC_PATIENT_STATUS,1,2) NOT BETWEEN '31' AND '39')
+         AND (MX.DISCHARGE_DT IS NOT NULL and discharge_dt >= admit_dt) THEN 1 else 0 end DISCHARGE_DT1,
+         /*old*/
+         /*case when (CLAIM_TYPE='I' AND cde_place_of_service <> '221' and SUBSTR(DSC_PATIENT_STATUS,1,2) NOT BETWEEN '30' AND '39')
+         AND (MX.DISCHARGE_DT IS NOT NULL and discharge_dt >= admit_dt) THEN 1 else 0 end DISCHARGE_DT1,*/
+         /* ADMITTING DIAGNOSIS */
+         /*NT edit 7.26.18*/
+         case when CLAIM_TYPE IN('I') AND substr(cde_type_of_bill_enc,1,2) not in('12','22','42','62','81','82') AND CDE_DIAG_ADMIT not IN ('+','-', ' ')
+         THEN 1 else 0 END CDE_DIAG_ADMIT1,
+         /*old*/
+         /*case when CLAIM_TYPE IN('I') AND cde_place_of_service not in('212','222','242','262','281','282') AND CDE_DIAG_ADMIT not IN ('+','-', ' ')
+         THEN 1 else 0 END CDE_DIAG_ADMIT1,*/
+         /* PATIENT DISCHARGE STATUS */
+         case when CLAIM_TYPE IN('I','O') AND cde_patient_status not in ('+', '-', ' ') then 1 else 0 end as CDE_PATIENT_STATUS1,
+         /* TYPE OF ADMISSION */
+         case when CLAIM_TYPE IN('I','L') AND cde_admit_type in ('1','2','3','4','5','6','7','8','9') then 1 else 0 end as cde_admit_type1,
+         /* SOURCE OF ADMISSION */
+         case when CLAIM_TYPE IN('I','L') AND cde_admit_source  in ('1','2','3','4','5','6','7','8','9','A','B','C','D','E','F') then 1 else 0 end as cde_admit_source1,
+         /* REVENUE CODE */
+         case when CLAIM_TYPE IN('I','O','L') AND substr(dsc_revenue,1,1) in ('0','1','2','3','4','5','6','7','8','9') and cde_enc_rec_ind <> '0'
+         then 1 else 0 end as rev_code1,
+         /*updated 5.29.2018 b/c DW storing POS and TOB separately now*/
+         /* PLACE OF SERVICE */
+         /*case when CLAIM_TYPE NOT IN('P','D') AND SUBSTR(place_of_service,1,1) IN ('0','1','2','3','4','5','6','7','8','9') and
+         SUBSTR(place_of_service,2,1) IN ('0','1','2','3','4','5','6','7','8','9') THEN 1 else 0 end as pos_code1,*/
+         /* PLACE OF SERVICE (updated) */
+         case when CLAIM_TYPE NOT IN('P','D') AND
+         ( (substr(cde_place_of_service_enc,1,1) in('0','1','2','3','4','5','6','7','8','9') and
+         substr(cde_place_of_service_enc,2,1) in('0','1','2','3','4','5','6','7','8','9'))
+         or
+         (substr(cde_type_of_bill_enc,1,1) in('0','1','2','3','4','5','6','7','8','9') and
+         substr(cde_type_of_bill_enc,2,1) in('0','1','2','3','4','5','6','7','8','9'))) then 1 else 0 end as pos_code1,
+         /*updated 5.29.2018 b/c DW storing POS and TOB separately now and POS type has been retired*/
+         /* PLACE OF SERVICE TYPE */
+         /*case when claim_type not in('P','D') and 											
+         (											
+         ((cde_enc_claim_cat ='1' and substr(cde_place_of_service,1,1)='2') or (cde_enc_claim_cat ='2' and substr(cde_place_of_service,1,1)='1'))											
+         or (cde_enc_claim_cat in('3','4','5') and substr(cde_place_of_service,1,1)='1') 											
+         or (cde_enc_claim_cat in('6') and substr(cde_place_of_service,1,1)='2')											
+         )											
+         and SUBSTR(cde_place_of_service,2,1) IN ('0','1','2','3','4','5','6','7','8','9') and 											
+         SUBSTR(cde_place_of_service,3,1) IN ('0','1','2','3','4','5','6','7','8','9') THEN 1 else 0 end as pos_type1,*/
+         /* PLACE OF SERVICE TYPE (updated) */
+         case when CLAIM_TYPE NOT IN('P','D') AND
+         ((cde_enc_claim_cat in('2','3','4','5') and
+         substr(cde_place_of_service_enc,1,1) in('0','1','2','3','4','5','6','7','8','9') and
+         substr(cde_place_of_service_enc,2,1) in('0','1','2','3','4','5','6','7','8','9'))
+         or
+         (cde_enc_claim_cat in('1','6') and
+         substr(cde_type_of_bill_enc,1,1) in('0','1','2','3','4','5','6','7','8','9') and
+         substr(cde_type_of_bill_enc,2,1) in('0','1','2','3','4','5','6','7','8','9'))) then 1 else 0 end as pos_type1,
+         /*Paid Date -Field 45*/
+         case when MX.PAID_DT IS NOT NULL THEN 1 else 0 end PAID_DT1,	
+         /*Billing Provider ID address location code- field 223*/	
+         case when bill_prov_id_loc_code not in(' ','+','#','-') then 1 else 0 end as bill_id_loc1,
+         									
+         /*Servicing Provider ID address location code- field 227*/	
+         case when serv_prov_id_loc_code not in(' ','+','#','-') then 1 else 0 end as serv_id_loc1,
+         		
+         /*Prescribing Provider ID address location code- field 224*/	
+         case when CLAIM_TYPE = 'P' AND CDE_DRUG_CLASS = 'F' and prs_prov_id_loc_code not in(' ','+','#','-') then 1 else 0 end as prs_id_loc1,
+         /*ENTITY PIDSLs are used to derive cde_enc_MCO and cde_enc_ACO names, and are available in ODS only: ACO*/
+         case when cde_enc_aco not in(' ','+','#','-') then 1 else 0 end as aco1,
+         /* TPL AMOUNT */
+         case when amt_tpl >= 0 then 1 else 0 end as amttpl1,
+         /* COPAY AMOUNT */
+         case when amt_copay >= 0 then 1 else 0 end as amtcopay1,
+         /* COINSURANCE AMOUNT */
+         case when amt_coinsurance >=0 then 1 else 0 end as amtcoins1,
+         /* RECORD TYPE */
+         case when cde_clm_disposition in ('O','V','R','A') then 1 else 0 end as clmdisp1,
+         /* CLAIM NUMBER */
+         case when enc_claim_no is not null then 1 else 0 end as clmnum1,
+         /* CLAIM SUFFIX */
+         case when enc_claim_suffix is not null then 1 else 0 end as clmsuf1,
+         /* MOTHER-CHILD CLAIM ID */
+         case when num_logical_claim is not null then 1 else 0 end as numlogclm1
+         											
+         FROM MCO_MBHP_DOS_&MONYY.   MX
+         )  FIRSTX
+         GROUP BY FIRSTX.CDE_ENC_MCO, firstx.DOS_YRMONTH
+
+CREATE TABLE MCO_MBH_PCNT_&MONYY.
+         NOLOGGING
+         COMPRESS
+         AS
+         SELECT
+         I.CDE_ENC_MCO,
+         S.TOT_INPAT,
+         S.TOT_PHARM,
+         S.TOT_OUTPT,
+         S.TOT_OUTPTQ2,
+         S.TOT_DENT,
+         S.TOT_DENTQ2,
+         S.TOT_MED,
+         S.TOT_MEDQ2,
+         S.TOT_NON_PHRM_DENTQ2,
+         S.TOT_PHARM_SCRIPT,
+         S.TOT_PHARMSCRIPT_NOTCOMP,
+         S.TOT_NONPHARM,
+         S.TOT_INPT_LTC,
+         S.TOT_INPT_OUTPT_LTC,
+         S.TOT_INP_OP_LTC_M_EXCQ2,
+         S.TOT_NON_PHRM_DENT,
+         S.TOT_INPAT_FILTER1,
+         S.TOT_INPAT_FILTER2,
+         S.TOT_MOD_DME,
+         S.TOT_MOD_LABXRAY,
+         S.TOT_MOD_SURGERYM,
+         S.TOT_INOUTLTC_NOART,
+         S.TOT_INPT_OUTPT,
+         S.TOT_REX AS TOT_RECORDS,
+         /* MEMBER ID - Field 76*/
+         case when  I.ID_MEDICAID2 = 0 then  0
+         ELSE (trunc((I.ID_MEDICAID2 / S.TOT_REX),4))
+         end as PCT_ID_MEDICAID,
+         /* FROM DOS - Field 17 */
+         case when  DOS_FROM2 = 0 then  0
+         else  trunc((DOS_FROM2 / S.TOT_REX),4)
+         end as PCT_DOS_FROM,
+         /* THRU DOS - Field 18 */
+         case when  DOS_THRU2 = 0 then  0
+         else  trunc((DOS_THRU2 / S.TOT_REX),4)
+         end as PCT_DOS_THRU,
+         /*  SERVICING PROVIDER ID - Field 50*/
+         case when  SERV_PROV_ID2 = 0 then  0
+         else  trunc((SERV_PROV_ID2 / S.TOT_REX),4)
+         end as PCT_SERV_PROV_ID,
+         /* SERVICING PROVIDER ID TYPE - Field 51 */
+         CASE WHEN SERV_PROV_ID_TYP2 = 0 THEN 0
+         ELSE trunc((SERV_PROV_ID_TYP2/S.TOT_REX),4)
+         END AS PCT_SERV_PROV_ID_TYP,
+         CASE WHEN SERV_PROV_TYP2 = 0 THEN 0
+         ELSE trunc((SERV_PROV_TYP2/S.TOT_REX),4)
+         END AS PCT_SERV_PROV_TYP,
+         CASE WHEN SERV_PROV_spec2 = 0 THEN 0
+         ELSE trunc((SERV_PROV_spec2/S.TOT_REX),4)
+         END AS PCT_SERV_PROV_spec,
+         /* BILLING PROVIDER ID - Field 58*/
+         case when  BILL_PROV_ID2 = 0 then  0
+         else  trunc((BILL_PROV_ID2 / S.TOT_REX),4)
+         end as PCT_BILL_PROV_ID,
+         /* BILLING PROVIDER ID TYPE - Field 93 */
+         CASE WHEN BILL_PROV_ID_TYP2 = 0 THEN 0
+         ELSE trunc((BILL_PROV_ID_TYP2/S.TOT_REX),4)
+         END AS PCT_BILL_PROV_ID_TYP,
+         /* PRESCRIBING PROVIDER ID - ON PHARM CLAIMS ONLY EXCLUDE OTC- Field 81 */
+         case when  PRESCRIBE_PROV2 = 0 then  0
+         else  trunc((PRESCRIBE_PROV2 / S.TOT_PHARM_SCRIPT),4)
+         end as PCT_PRESCRIBE_PROV_ID,
+         /* PRESCRIBING PROVIDER ID TYPE - ON PHARM CLAIMS ONLY EXCLUDE OTC- Field 95 */
+         CASE WHEN PRES_PROV_ID_TYP2 = 0 THEN 0
+         ELSE trunc((PRES_PROV_ID_TYP2/S.TOT_PHARM_SCRIPT),4)
+         END AS PCT_PRES_PROV_ID_TYP,
+         /* PRIMARY DIAGNOSIS */
+         case when primary_diag2 = 0 then 0
+         else trunc((primary_diag2 / S.TOT_NON_PHRM_DENTQ2),4)
+         END AS PCT_PRIMARY_DIAG,
+         /* ICD VERSION */
+         case when cde_icd_version2 = 0 then 0
+         else trunc((cde_icd_version2 / S.TOT_INP_OP_LTC_M_EXCQ2),4)
+         END AS PCT_ICD_VERSION,
+         /* PROCEDURE CODE */
+         case when proc_code2 = 0 then 0
+         else trunc((proc_code2 / (S.TOT_OUTPTQ2+S.TOT_DENTQ2+S.TOT_MEDQ2)),4)
+         END AS PCT_PROC_CODE,
+         case when proc_code2_o_d = 0 or (s.tot_outptQ2=0 and s.tot_dentQ2=0) then 0
+         else trunc((proc_code2_o_d / (S.TOT_OUTPTQ2+S.TOT_DENTQ2)),4)
+         END AS PCT_PROC_CODE_O_D,
+         case when proc_code2_m = 0 or (s.tot_medQ2=0) then 0
+         else trunc((proc_code2_m / (S.TOT_MEDQ2)),4)
+         END AS PCT_PROC_CODE_M,
+         /* PROC MODIFIER */
+         case when proc_mod_dme2 = 0 then 0
+         else trunc((proc_mod_dme2 / (S.TOT_MOD_DME)),4)
+         END AS PCT_PROC_mod_DME,
+         case when proc_mod_labxray2 = 0 then 0
+         else trunc((proc_mod_labxray2 / (S.TOT_MOD_LABXRAY)),4)
+         END AS PCT_PROC_mod_LABXRAY,
+         case when proc_mod_surgerym2 = 0 then 0
+         else trunc((proc_mod_surgerym2 / (S.TOT_MOD_SURGERYM)),4)
+         END AS PCT_PROC_mod_SURGERYM,
+         case when qty_unit_bill2 =0 then 0
+         else trunc ((qty_unit_bill2 / (S.TOT_NONPHARM)),4)
+         END AS PCT_qty_unit_bill,
+         /* BILLING PROVIDER NPI */
+         case when bill_npi2 = 0 then 0
+         else trunc((bill_npi2 / S.TOT_NON_PHRM_DENTQ2),4)
+         END AS PCT_BILL_NPI,
+         /* SERVICING PROVIDER NPI */
+         case when serv_npi2 = 0 then 0
+         else trunc((serv_npi2 / S.TOT_NON_PHRM_DENTQ2),4)
+         END AS PCT_SERV_NPI,
+         /* DATE SCRIPT WRITTEN */
+         case when  SCRIPTWRIT2 = 0 then  0
+         ELSE (trunc((SCRIPTWRIT2 / S.TOT_PHARM_SCRIPT),4))
+         end as PCT_SCRIPT_WRITTEN,
+         case when REFILL2 = 0 THEN 0
+         ELSE (trunc((REFILL2 / S.TOT_PHARM_SCRIPT),4))
+         end as PCT_REFILL,
+         case when DISPENSE2 = 0 THEN 0
+         ELSE (trunc((DISPENSE2 / S.TOT_PHARM_SCRIPT),4))
+         end as PCT_DISPENSE,
+         case when SCRIPT2 = 0 THEN 0
+         ELSE (trunc((SCRIPT2 / S.TOT_PHARM_SCRIPT),4))
+         end as PCT_SCRIPT,
+         case when FEE2 = 0 THEN 0
+         ELSE (trunc((FEE2 / S.TOT_PHARM_SCRIPT),4))
+         end as PCT_FEE,
+         case when NDC2 = 0 THEN 0
+         ELSE (trunc((NDC2 / S.TOT_PHARMSCRIPT_NOTCOMP),4))
+         end as PCT_NDC,
+         case when CLAIMCAT2 = 0 THEN 0
+         ELSE (trunc((CLAIMCAT2 / S.TOT_REX),4))
+         end as PCT_CLAIMCAT,
+         case when svccat2 =0 then 0
+         else trunc ((svccat2 / (S.TOT_rex)),4)
+         END AS PCT_svc_cat,
+         case when RECIND2 = 0 THEN 0
+         ELSE (trunc((RECIND2 / S.TOT_REX),4))
+         end as PCT_RECIND,
+         case when AMTBILL2 = 0 THEN 0
+         ELSE (trunc((AMTBILL2 / S.TOT_REX),4))
+         end as PCT_AMTBILL,
+         case when AMTPAY2 = 0 THEN 0
+         ELSE (trunc((AMTPAY2 / S.TOT_REX),4))
+         end as PCT_AMTPAY,
+         case when AMTALLOW2 = 0 THEN 0
+         ELSE (trunc((AMTALLOW2 / S.TOT_REX),4))
+         end as PCT_AMTALLOW,
+         case when  ADMITDT2 = 0 then  0
+         ELSE (trunc((ADMITDT2 / (S.TOT_INPT_LTC)),4))
+         end as PCT_ADMITDT,
+         case when DISCHARGEDT2 = 0 THEN 0
+         ELSE (trunc((DISCHARGEDT2 / S.TOT_INPAT_FILTER1),4))
+         end as PCT_DISCHARGEDT,
+         case when CDE_DIAG_ADMIT2 = 0 THEN 0
+         ELSE (trunc((CDE_DIAG_ADMIT2 / S.TOT_INPAT_FILTER2),4))
+         end as PCT_DIAG_ADMIT,
+         case when CDE_PATIENT_STATUS2 = 0 THEN 0
+         ELSE (trunc((CDE_PATIENT_STATUS2 / S.TOT_INPT_OUTPT),4))
+         end as PCT_PATIENT_STATUS,
+         case when CDE_ADMIT_TYPE2 = 0 THEN 0
+         ELSE (trunc((CDE_ADMIT_TYPE2 / S.TOT_INPT_LTC),4))
+         end as PCT_ADMIT_TYPE,
+         case when CDE_ADMIT_SOURCE2 = 0 THEN 0
+         ELSE (trunc((CDE_ADMIT_SOURCE2 / S.TOT_INPT_LTC),4))
+         end as PCT_ADMIT_SOURCE,
+         case when REV_CODE2 = 0 THEN 0
+         ELSE (trunc((REV_CODE2 / S.TOT_INOUTLTC_NOART),4))
+         end as PCT_REV_CODE,
+         case when POS_CODE2 = 0 THEN 0
+         ELSE (trunc((POS_CODE2 / S.TOT_NON_PHRM_DENT),4))
+         end as PCT_POS_CODE,
+         case when POS_TYPE2 = 0 THEN 0
+         ELSE (trunc((POS_TYPE2 / S.TOT_NON_PHRM_DENT),4))
+         end as PCT_POS_TYPE,
+         /* PAID DT- Field 45 */
+         case when  PAID_DT2 = 0 then  0
+         else  trunc((PAID_DT2 / S.TOT_REX),4)
+         end as PCT_PAID_DT,
+         /* SERVICING PROVIDER ID ADDRESS LOCATION  */
+         CASE WHEN SERV_ID_LOC2 = 0 THEN 0
+         ELSE trunc((SERV_ID_LOC2/S.TOT_REX),4)
+         END AS PCT_SERV_ID_LOC,
+         /* BILLING PROVIDER ID ADDRESS LOCATION  */
+         CASE WHEN BILL_ID_LOC2 = 0 THEN 0
+         ELSE trunc((BILL_ID_LOC2/S.TOT_REX),4)
+         END AS PCT_BILL_ID_LOC,
+         /* PRESCRIBING PROVIDER ID ADDRESS LOCATION  */
+         CASE WHEN PRS_ID_LOC2 = 0 THEN 0
+         ELSE trunc((PRS_ID_LOC2/S.TOT_PHARM_SCRIPT),4)
+         END AS PCT_PRS_ID_LOC,
+         /* ENTITY PIDSL - ACO */
+         CASE WHEN ACO2 = 0 THEN 0
+         ELSE trunc((ACO2/S.TOT_REX),4)
+         END AS PCT_ACO,
+         /* TPL AMOUNT */
+         CASE WHEN AMTTPL2 = 0 THEN 0
+         ELSE TRUNC((AMTTPL2/S.TOT_REX),4)
+         END AS PCT_TPL,
+         /* AMT COPAY */
+         CASE WHEN AMTCOPAY2 = 0 THEN 0
+         ELSE TRUNC((AMTCOPAY2/S.TOT_REX),4)
+         END AS PCT_COPAY,
+         /* AMT COINSURANCE */
+         CASE WHEN AMTCOINS2 = 0 THEN 0
+         ELSE TRUNC((AMTCOINS2/S.TOT_REX),4)
+         END AS PCT_COINS,
+         /* RECORD TYPE */
+         CASE WHEN CLMDISP2 = 0 THEN 0
+         ELSE TRUNC((CLMDISP2/S.TOT_REX),4)
+         END AS PCT_CLMDISP,
+         /* CLAIM NUMBER */
+         CASE WHEN CLMNUM2 = 0 THEN 0
+         ELSE TRUNC((CLMNUM2/S.TOT_REX),4)
+         END AS PCT_CLMNUM,
+         /* CLAIM SUFFIX */
+         CASE WHEN CLMSUF2 = 0 THEN 0
+         ELSE TRUNC((CLMSUF2/S.TOT_REX),4)
+         END AS PCT_CLMSUF,
+         /* MOTHER-CHILD CLAIM ID */
+         CASE WHEN NUMLOGCLM2 = 0 THEN 0
+         ELSE TRUNC((NUMLOGCLM2/S.TOT_REX),4)
+         END AS PCT_NUMLOGCLM
+         FROM MCO_MBH_FLDREX_&MONYY. I
+         INNER JOIN MCO_MBH_TOTREX_&MONYY. S ON I.CDE_ENC_MCO = S.CDE_ENC_MCO
+
+CREATE TABLE MCO_MBH_PCTDOS_&MONYY.
+         NOLOGGING
+         COMPRESS
+         AS
+         SELECT
+         I.CDE_ENC_MCO,
+         I.DOS_YRMONTH,
+         S.TOT_INPAT,
+         S.TOT_PHARM,
+         S.TOT_OUTPT,
+         S.TOT_OUTPTQ2,
+         S.TOT_DENT,
+         S.TOT_DENTQ2,
+         S.TOT_MED,
+         S.TOT_MEDQ2,
+         S.TOT_NON_PHRM_DENTQ2,
+         S.TOT_PHARM_SCRIPT,
+         S.TOT_PHARMSCRIPT_NOTCOMP,
+         S.TOT_NONPHARM,
+         S.TOT_INPT_LTC,
+         S.TOT_INPT_OUTPT_LTC,
+         S.TOT_INP_OP_LTC_M_EXCQ2,
+         S.TOT_NON_PHRM_DENT,
+         S.TOT_INPAT_FILTER1,
+         S.TOT_INPAT_FILTER2,
+         S.TOT_MOD_DME,
+         S.TOT_MOD_LABXRAY,
+         S.TOT_MOD_SURGERYM,
+         S.TOT_INOUTLTC_NOART,
+         S.TOT_INPT_OUTPT,
+         S.TOT_REX AS TOT_RECORDS,
+         /* MEMBER ID - Field 76*/
+         case when  I.ID_MEDICAID2 = 0 then  0
+         ELSE (trunc((I.ID_MEDICAID2 / S.TOT_REX),4))
+         end as PCT_ID_MEDICAID,
+         /* FROM DOS - Field 17 */
+         case when  DOS_FROM2 = 0 then  0
+         else  trunc((DOS_FROM2 / S.TOT_REX),4)
+         end as PCT_DOS_FROM,
+         /* THRU DOS - Field 18 */
+         case when  DOS_THRU2 = 0 then  0
+         else  trunc((DOS_THRU2 / S.TOT_REX),4)
+         end as PCT_DOS_THRU,
+         /*  SERVICING PROVIDER ID - Field 50*/
+         case when  SERV_PROV_ID2 = 0 then  0
+         else  trunc((SERV_PROV_ID2 / S.TOT_REX),4)
+         end as PCT_SERV_PROV_ID,
+         /* SERVICING PROVIDER ID TYPE - Field 51 */
+         CASE WHEN SERV_PROV_ID_TYP2 = 0 THEN 0
+         ELSE trunc((SERV_PROV_ID_TYP2/S.TOT_REX),4)
+         END AS PCT_SERV_PROV_ID_TYP,
+         CASE WHEN SERV_PROV_TYP2 = 0 THEN 0
+         ELSE trunc((SERV_PROV_TYP2/S.TOT_REX),4)
+         END AS PCT_SERV_PROV_TYP,
+         CASE WHEN SERV_PROV_spec2 = 0 THEN 0
+         ELSE trunc((SERV_PROV_spec2/S.TOT_REX),4)
+         END AS PCT_SERV_PROV_spec,
+         /* BILLING PROVIDER ID - Field 58*/
+         case when  BILL_PROV_ID2 = 0 then  0
+         else  trunc((BILL_PROV_ID2 / S.TOT_REX),4)
+         end as PCT_BILL_PROV_ID,
+         /* BILLING PROVIDER ID TYPE - Field 93 */
+         CASE WHEN BILL_PROV_ID_TYP2 = 0 THEN 0
+         ELSE trunc((BILL_PROV_ID_TYP2/S.TOT_REX),4)
+         END AS PCT_BILL_PROV_ID_TYP,
+         /* PRESCRIBING PROVIDER ID - ON PHARM CLAIMS ONLY EXCLUDE OTC- Field 81 */
+         case when  PRESCRIBE_PROV2 = 0 then  0
+         else  trunc((PRESCRIBE_PROV2 / S.TOT_PHARM_SCRIPT),4)
+         end as PCT_PRESCRIBE_PROV_ID,
+         /* PRESCRIBING PROVIDER ID TYPE - ON PHARM CLAIMS ONLY EXCLUDE OTC- Field 95 */
+         CASE WHEN PRES_PROV_ID_TYP2 = 0 THEN 0
+         ELSE trunc((PRES_PROV_ID_TYP2/S.TOT_PHARM_SCRIPT),4)
+         END AS PCT_PRES_PROV_ID_TYP,
+         /* PRIMARY DIAGNOSIS */
+         case when primary_diag2 = 0 then 0
+         else trunc((primary_diag2 / S.TOT_NON_PHRM_DENTQ2),4)
+         END AS PCT_PRIMARY_DIAG,
+         /* ICD VERSION */
+         case when cde_icd_version2 = 0 then 0
+         else trunc((cde_icd_version2 / S.TOT_INP_OP_LTC_M_EXCQ2),4)
+         END AS PCT_ICD_VERSION,
+         /* PROCEDURE CODE */
+         case when proc_code2 = 0 then 0
+         else trunc((proc_code2 / (S.TOT_OUTPTQ2+S.TOT_DENTQ2+S.TOT_MEDQ2)),4)
+         END AS PCT_PROC_CODE,
+         case when proc_code2_o_d = 0 or (s.tot_outptQ2=0 and s.tot_dentQ2=0) then 0
+         else trunc((proc_code2_o_d / (S.TOT_OUTPTQ2+S.TOT_DENTQ2)),4)
+         END AS PCT_PROC_CODE_O_D,
+         case when proc_code2_m = 0 or (s.tot_medQ2=0) then 0
+         else trunc((proc_code2_m / (S.TOT_MEDQ2)),4)
+         END AS PCT_PROC_CODE_M,
+         /* PROC MODIFIER */
+         case when proc_mod_dme2 = 0 then 0
+         else trunc((proc_mod_dme2 / (S.TOT_MOD_DME)),4)
+         END AS PCT_PROC_mod_DME,
+         case when proc_mod_labxray2 = 0 then 0
+         else trunc((proc_mod_labxray2 / (S.TOT_MOD_LABXRAY)),4)
+         END AS PCT_PROC_mod_LABXRAY,
+         case when proc_mod_surgerym2 = 0 then 0
+         else trunc((proc_mod_surgerym2 / (S.TOT_MOD_SURGERYM)),4)
+         END AS PCT_PROC_mod_SURGERYM,
+         case when qty_unit_bill2 =0 then 0
+         else trunc ((qty_unit_bill2 / (S.TOT_NONPHARM)),4)
+         END AS PCT_qty_unit_bill,
+         /* BILLING PROVIDER NPI */
+         case when bill_npi2 = 0 then 0
+         else trunc((bill_npi2 / S.TOT_NON_PHRM_DENTQ2),4)
+         END AS PCT_BILL_NPI,
+         /* SERVICING PROVIDER NPI */
+         case when serv_npi2 = 0 then 0
+         else trunc((serv_npi2 / S.TOT_NON_PHRM_DENTQ2),4)
+         END AS PCT_SERV_NPI,
+         /* DATE SCRIPT WRITTEN */
+         case when  SCRIPTWRIT2 = 0 then  0
+         ELSE (trunc((SCRIPTWRIT2 / S.TOT_PHARM_SCRIPT),4))
+         end as PCT_SCRIPT_WRITTEN,
+         case when REFILL2 = 0 THEN 0
+         ELSE (trunc((REFILL2 / S.TOT_PHARM_SCRIPT),4))
+         end as PCT_REFILL,
+         case when DISPENSE2 = 0 THEN 0
+         ELSE (trunc((DISPENSE2 / S.TOT_PHARM_SCRIPT),4))
+         end as PCT_DISPENSE,
+         case when SCRIPT2 = 0 THEN 0
+         ELSE (trunc((SCRIPT2 / S.TOT_PHARM_SCRIPT),4))
+         end as PCT_SCRIPT,
+         case when FEE2 = 0 THEN 0
+         ELSE (trunc((FEE2 / S.TOT_PHARM_SCRIPT),4))
+         end as PCT_FEE,
+         case when NDC2 = 0 THEN 0
+         ELSE (trunc((NDC2 / S.TOT_PHARMSCRIPT_NOTCOMP),4))
+         end as PCT_NDC,
+         case when CLAIMCAT2 = 0 THEN 0
+         ELSE (trunc((CLAIMCAT2 / S.TOT_REX),4))
+         end as PCT_CLAIMCAT,
+         case when svccat2 =0 then 0
+         else trunc ((svccat2 / (S.TOT_rex)),4)
+         END AS PCT_svc_cat,
+         case when RECIND2 = 0 THEN 0
+         ELSE (trunc((RECIND2 / S.TOT_REX),4))
+         end as PCT_RECIND,
+         case when AMTBILL2 = 0 THEN 0
+         ELSE (trunc((AMTBILL2 / S.TOT_REX),4))
+         end as PCT_AMTBILL,
+         case when AMTPAY2 = 0 THEN 0
+         ELSE (trunc((AMTPAY2 / S.TOT_REX),4))
+         end as PCT_AMTPAY,
+         case when AMTALLOW2 = 0 THEN 0
+         ELSE (trunc((AMTALLOW2 / S.TOT_REX),4))
+         end as PCT_AMTALLOW,
+         case when  ADMITDT2 = 0 then  0
+         ELSE (trunc((ADMITDT2 / (S.TOT_INPT_LTC)),4))
+         end as PCT_ADMITDT,
+         case when DISCHARGEDT2 = 0 THEN 0
+         ELSE (trunc((DISCHARGEDT2 / S.TOT_INPAT_FILTER1),4))
+         end as PCT_DISCHARGEDT,
+         case when CDE_DIAG_ADMIT2 = 0 THEN 0
+         ELSE (trunc((CDE_DIAG_ADMIT2 / S.TOT_INPAT_FILTER2),4))
+         end as PCT_DIAG_ADMIT,
+         case when CDE_PATIENT_STATUS2 = 0 THEN 0
+         ELSE (trunc((CDE_PATIENT_STATUS2 / S.TOT_INPT_OUTPT),4))
+         end as PCT_PATIENT_STATUS,
+         case when CDE_ADMIT_TYPE2 = 0 THEN 0
+         ELSE (trunc((CDE_ADMIT_TYPE2 / S.TOT_INPT_LTC),4))
+         end as PCT_ADMIT_TYPE,
+         case when CDE_ADMIT_SOURCE2 = 0 THEN 0
+         ELSE (trunc((CDE_ADMIT_SOURCE2 / S.TOT_INPT_LTC),4))
+         end as PCT_ADMIT_SOURCE,
+         case when REV_CODE2 = 0 THEN 0
+         ELSE (trunc((REV_CODE2 / S.TOT_INOUTLTC_NOART),4))
+         end as PCT_REV_CODE,
+         case when POS_CODE2 = 0 THEN 0
+         ELSE (trunc((POS_CODE2 / S.TOT_NON_PHRM_DENT),4))
+         end as PCT_POS_CODE,
+         case when POS_TYPE2 = 0 THEN 0
+         ELSE (trunc((POS_TYPE2 / S.TOT_NON_PHRM_DENT),4))
+         end as PCT_POS_TYPE,
+         case when  PAID_DT2 = 0 then  0
+         else  trunc((PAID_DT2 / S.TOT_REX),4)
+         end as PCT_PAID_DT,
+         CASE WHEN SERV_ID_LOC2 = 0 THEN 0
+         ELSE trunc((SERV_ID_LOC2/S.TOT_REX),4)
+         END AS PCT_SERV_ID_LOC,
+         CASE WHEN BILL_ID_LOC2 = 0 THEN 0
+         ELSE trunc((BILL_ID_LOC2/S.TOT_REX),4)
+         END AS PCT_BILL_ID_LOC,
+         CASE WHEN PRS_ID_LOC2 = 0 THEN 0
+         ELSE trunc((PRS_ID_LOC2/S.TOT_PHARM_SCRIPT),4)
+         END AS PCT_PRS_ID_LOC,
+         CASE WHEN ACO2 = 0 THEN 0
+         ELSE trunc((ACO2/S.TOT_REX),4)
+         END AS PCT_ACO,
+         /* TPL AMOUNT */
+         CASE WHEN AMTTPL2 = 0 THEN 0
+         ELSE TRUNC((AMTTPL2/S.TOT_REX),4)
+         END AS PCT_TPL,
+         /* AMT COPAY */
+         CASE WHEN AMTCOPAY2 = 0 THEN 0
+         ELSE TRUNC((AMTCOPAY2/S.TOT_REX),4)
+         END AS PCT_COPAY,
+         /* AMT COINSURANCE */
+         CASE WHEN AMTCOINS2 = 0 THEN 0
+         ELSE TRUNC((AMTCOINS2/S.TOT_REX),4)
+         END AS PCT_COINS,
+         /* RECORD TYPE */
+         CASE WHEN CLMDISP2 = 0 THEN 0
+         ELSE TRUNC((CLMDISP2/S.TOT_REX),4)
+         END AS PCT_CLMDISP,
+         /* CLAIM NUMBER */
+         CASE WHEN CLMNUM2 = 0 THEN 0
+         ELSE TRUNC((CLMNUM2/S.TOT_REX),4)
+         END AS PCT_CLMNUM,
+         /* CLAIM SUFFIX */
+         CASE WHEN CLMSUF2 = 0 THEN 0
+         ELSE TRUNC((CLMSUF2/S.TOT_REX),4)
+         END AS PCT_CLMSUF,
+         /* MOTHER-CHILD CLAIM ID */
+         CASE WHEN NUMLOGCLM2 = 0 THEN 0
+         ELSE TRUNC((NUMLOGCLM2/S.TOT_REX),4)
+         END AS PCT_NUMLOGCLM
+         FROM MCO_MBH_FRDOS_&MONYY. I
+         INNER JOIN MCO_MBH_TDOS_&MONYY. S ON I.CDE_ENC_MCO = S.CDE_ENC_MCO AND I.DOS_YRMONTH=S.DOS_YRMONTH
+         order by cde_enc_mco,dos_yrmonth
+
+CREATE TABLE MCO_MBH_TPDOS_&MONYY.
+         NOLOGGING
+         COMPRESS
+         AS
+         SELECT CDE_ENC_MCO,DOS_YRMONTH, ACO,
+         SUM(INPATS) AS TOT_INPAT,
+         SUM(OUTPATS) AS TOT_OUTPT,
+         SUM(OUTPATSQ2) AS TOT_OUTPTQ2, /*ADJUST B/C Q2 REMOVED REC_IND=0 FROM DATA PULL*/
+         SUM(MED) AS TOT_MED,
+         SUM(MEDQ2) AS TOT_MEDQ2,  /*ADJUST B/C Q2 REMOVED REC_IND=0 FROM DATA PULL*/
+         SUM(PHARMS) AS TOT_PHARM,
+         SUM(DENT) AS TOT_DENT,
+         SUM(DENTQ2) AS TOT_DENTQ2, /*ADJUST B/C Q2 REMOVED REC_IND=0 FROM DATA PULL*/
+         SUM(LTCS) AS TOT_LTC,
+         SUM(FACILTY) AS TOT_FACILTY,
+         SUM(ADJUST) AS TOT_ADJST,
+         SUM(MISS) AS TOT_MISSING,
+         SUM(NOT_PRM_DNT) AS TOT_NON_PHRM_DENT, /* USED TO COMPUTE % ON NON PHARM AND DENTAL CLAIMS, WHICH DON'T HAVE DX */
+         SUM(NOT_PRM_DNTQ2) AS TOT_NON_PHRM_DENTQ2, /*ADJUST B/C Q2 REMOVED REC_IND=0 FROM DATA PULL*/
+         SUM(PHARM_SCRIPT) AS TOT_PHARM_SCRIPT, /* USED TO COMPUTE % ON PRESCRIBING ID/TYPE OTC ARE EXCLUDED PER SPECS*/
+         SUM(NON_PHARM) AS TOT_NONPHARM, /*added 7.2.18*/
+         SUM(NOTCOMPOUND) AS TOT_NOTCOMPOUND,
+         SUM(PHARMSCRIPT_NOTCOMP) AS TOT_PHARMSCRIPT_NOTCOMP,
+         (SUM(INPATS) + SUM(MED)) AS TOT_INP_MED,
+         (SUM(INPATS) + SUM(LTCS)) AS TOT_INPT_LTC,
+         	    (SUM(INPATS) + SUM(OUTPATS)) AS TOT_INPT_OUTPT,
+         (SUM(INPATS) + SUM(OUTPATS) + SUM(LTCS)) AS TOT_INPT_OUTPT_LTC,
+         SUM(INOUTLTC_NOART) AS TOT_INOUTLTC_NOART,
+         SUM(INPAT_FILTER1) AS TOT_INPAT_FILTER1,
+         SUM(INPAT_FILTER2) AS TOT_INPAT_FILTER2,
+         SUM(INOPLTC_EXC) AS TOT_INP_OP_LTC_EXC,
+         SUM(INOPLTCM_EXC) AS TOT_INP_OP_LTC_M_EXC,
+         SUM(INOPLTCM_EXCQ2) AS TOT_INP_OP_LTC_M_EXCQ2, /*ADJUST B/C Q2 REMOVED REC_IND=0 FROM DATA PULL*/
+         SUM(MOD_DME) AS TOT_MOD_DME,
+         SUM(MOD_LABXRAY) AS TOT_MOD_LABXRAY,
+         SUM(MOD_SURGERYM) AS TOT_MOD_SURGERYM,
+         SUM(REX) AS TOT_REX
+         FROM
+         (SELECT
+         CDE_ENC_MCO,
+         TO_CHAR(DOS_FROM,'YYYY-MM') AS DOS_YRMONTH,
+         ACO,
+         CASE WHEN CLAIM_TYPE = 'I' THEN 1 ELSE 0 END INPATS,
+         CASE WHEN CLAIM_TYPE = 'P' THEN 1 ELSE 0 END PHARMS,
+         CASE WHEN CLAIM_TYPE = 'O' THEN 1 ELSE 0 END OUTPATS,
+         CASE WHEN CLAIM_TYPE = 'O' AND CDE_ENC_REC_IND <> '0' THEN 1 ELSE 0 END OUTPATSQ2,
+         CASE WHEN CLAIM_TYPE = 'L' THEN 1 ELSE 0 END LTCS,
+         CASE WHEN CLAIM_TYPE IN ('M') THEN 1 ELSE 0 END MED,
+         CASE WHEN CLAIM_TYPE IN ('M') AND CDE_ENC_REC_IND <> '0' THEN 1 ELSE 0 END MEDQ2,
+         CASE WHEN CLAIM_TYPE IN ('D') THEN 1 ELSE 0 END DENT,
+         CASE WHEN CLAIM_TYPE IN ('D') AND CDE_ENC_REC_IND <> '0' THEN 1 ELSE 0 END DENTQ2,
+         CASE WHEN CLAIM_TYPE NOT IN ('P','D') THEN 1 ELSE 0 END NOT_PRM_DNT,
+         CASE WHEN CLAIM_TYPE NOT IN ('P','D') AND CDE_ENC_REC_IND <> '0' THEN 1 ELSE 0 END NOT_PRM_DNTQ2,
+         CASE WHEN CLAIM_TYPE = 'P' AND CDE_DRUG_CLASS = 'F' THEN 1 ELSE 0 END PHARM_SCRIPT,
+         CASE WHEN CLAIM_TYPE <> 'P' THEN 1 ELSE 0 END AS NON_PHARM, /*added 7.2.18 for update to quantity logic*/
+         CASE WHEN IND_ENC_COMPOUND='2' THEN 1 ELSE 0 END AS NOTCOMPOUND,
+         CASE WHEN CLAIM_TYPE = 'P' AND CDE_DRUG_CLASS = 'F' AND IND_ENC_COMPOUND='2'
+         THEN 1 ELSE 0 END PHARMSCRIPT_NOTCOMP,
+         CASE WHEN SUBSTR(CDE_ENC_CLAIM_CAT,1,1) = '1' THEN 1 ELSE 0 END FACILTY,
+         CASE WHEN cde_clm_disposition <> 'O' THEN 1 ELSE 0 END ADJUST,
+         CASE WHEN CLAIM_TYPE IN (' ','-','+') THEN 1 ELSE 0 END MISS,
+         CASE WHEN CLAIM_TYPE='I' AND substr(cde_type_of_bill_enc,1,2) <> '21' and 
+                   SUBSTR(DSC_PATIENT_STATUS,1,2) NOT BETWEEN '31' AND '39' 
+                   THEN 1 ELSE 0 
+         END INPAT_FILTER1, 
+         CASE WHEN CLAIM_TYPE IN('I') AND substr(cde_type_of_bill_enc,1,2) not in('12','22','42','62','81','82') THEN 1 ELSE 0 END AS INPAT_FILTER2,
+         CASE WHEN CLAIM_TYPE IN('I','O','L') and cde_enc_rec_ind <> '0' THEN 1 ELSE 0 END AS INOUTLTC_NOART,
+         CASE WHEN ((CLAIM_TYPE='I' AND CDE_PATIENT_STATUS NOT BETWEEN '30' AND '39') OR CLAIM_TYPE IN('O','L')) THEN 1 ELSE 0 END INOPLTC_EXC,
+         CASE WHEN CLAIM_TYPE IN('I','M','O','L') AND (ENCSRGGRP_SEQ>0 or diagrp_seq>0) THEN 1 ELSE 0 END INOPLTCM_EXC,
+         CASE WHEN CLAIM_TYPE IN('I','M','O','L') AND (ENCSRGGRP_SEQ>0 or diagrp_seq>0) AND CDE_ENC_REC_IND <> '0' THEN 1 ELSE 0 END INOPLTCM_EXCQ2,
+         CASE WHEN CLAIM_TYPE IN ('M') AND CDE_ENC_REC_IND <> '0' AND (substr(proc_code,1,1) in('E','K')  or
+         (cde_enc_proc_type ='7' and substr(proc_code_enc,1,1) in('E','K'))) THEN 1 ELSE 0 END AS MOD_DME,
+         CASE WHEN CLAIM_TYPE IN ('M') AND CDE_ENC_REC_IND <> '0' AND (substr(proc_code,1,1) in('7')  or
+         (cde_enc_proc_type ='7' and substr(proc_code_enc,1,1) in('7'))) THEN 1 ELSE 0 END AS MOD_LABXRAY,
+         case when cde_enc_rec_ind <> '0' and claim_type in('M') and
+         ((proc_code between '10021' and '69990' and substr(proc_code,5,1) in('0','1','2','3','4','5','6','7','8','9') and proc_code_desc not in ('Unknown','N/A')) or
+         (cde_enc_proc_type ='7' and proc_code_enc between '10021' and '69990' and substr(proc_code_enc,5,1) in('0','1','2','3','4','5','6','7','8','9') and
+         proc_code_enc_desc not in('Unknown','N/A'))) THEN 1 ELSE 0 END AS MOD_SURGERYM,
+         1 AS REX
+         FROM MCO_MBHP_DOS_&MONYY.
+         )
+         GROUP BY CDE_ENC_MCO ,DOS_YRMONTH, ACO
+         ORDER BY CDE_ENC_MCO ,DOS_YRMONTH, ACO
+
+CREATE TABLE MCO_MBH_FRPDOS_&MONYY.
+         NOLOGGING
+         COMPRESS
+         AS
+         select   
+         FIRSTX.CDE_ENC_MCO,
+         firstx.DOS_YRMONTH,
+         firstx.ACO,
+         SUM(FIRSTX.ID_MEDICAID1) AS ID_MEDICAID2,
+         	 SUM(FIRSTX.DOS_FROM1) AS DOS_FROM2,
+         	 SUM(FIRSTX.DOS_THRU1) AS DOS_THRU2,
+         	 SUM(FIRSTX.SERV_PROV_ID1) AS SERV_PROV_ID2,
+         	 SUM(FIRSTX.SERV_PROV_ID_TYP1) AS SERV_PROV_ID_TYP2,
+         SUM(FIRSTX.SERV_PROV_SPEC1) AS SERV_PROV_SPEC2,
+         SUM(FIRSTX.BILL_PROV_ID1) AS BILL_PROV_ID2,
+         SUM(FIRSTX.BILL_PROV_ID_TYP1) AS BILL_PROV_ID_TYP2,
+         SUM(FIRSTX.PRESCRIBE_PROV1) AS PRESCRIBE_PROV2,
+         SUM(FIRSTX.PRES_PROV_ID_TYP1) AS PRES_PROV_ID_TYP2,
+         SUM(FIRSTX.PRIMARY_DIAG1) AS PRIMARY_DIAG2,
+         SUM(FIRSTX.CDE_ICD_VERSION1) AS CDE_ICD_VERSION2,
+         SUM(FIRSTX.PROC_CODE1) AS PROC_CODE2,
+         SUM(FIRSTX.PROC_CODE1a) AS PROC_CODE2_m,  /*professional claims only*/
+         SUM(FIRSTX.PROC_CODE1b) AS PROC_CODE2_o_d, /*outpt/dental claims only*/
+         SUM(FIRSTX.PROC_MOD_DME) AS PROC_MOD_DME2,
+         SUM(FIRSTX.PROC_MOD_LABXRAY) AS PROC_MOD_LABXRAY2,
+         SUM(FIRSTX.PROC_MOD_SURGERYM) AS PROC_MOD_SURGERYM2,
+         SUM(FIRSTX.QTY_UNITS_BILLED1) AS QTY_UNIT_BILL2,
+         SUM(FIRSTX.BILL_PRV_NPI) AS BILL_NPI2,
+         	 SUM(FIRSTX.SERV_PRV_NPI) AS SERV_NPI2,
+         SUM(FIRSTX.SCRIPTWRIT1) AS SCRIPTWRIT2,
+         	 SUM(FIRSTX.REFILL1) AS REFILL2,
+         	 SUM(FIRSTX.DISPENSE1) AS DISPENSE2,
+         SUM(FIRSTX.SCRIPT1) AS SCRIPT2,
+         SUM(FIRSTX.FEE1) AS FEE2,
+         	 SUM(FIRSTX.NDC1) AS NDC2,
+         	 SUM(FIRSTX.CLAIMCAT1) AS CLAIMCAT2,
+         SUM(FIRSTX.RECIND1) AS RECIND2,
+         SUM(FIRSTX.AMTBILL1) AS AMTBILL2,
+         SUM(FIRSTX.AMTPAY1) AS AMTPAY2,
+         SUM(FIRSTX.AMTALLOW1) AS AMTALLOW2,
+         SUM(FIRSTX.ADMITDT1) AS ADMITDT2,
+         SUM(FIRSTX.DISCHARGE_DT1) AS DISCHARGEDT2,
+         SUM(FIRSTX.CDE_DIAG_ADMIT1) AS CDE_DIAG_ADMIT2,
+         SUM(FIRSTX.CDE_PATIENT_STATUS1) AS CDE_PATIENT_STATUS2,
+         SUM(FIRSTX.CDE_ADMIT_TYPE1) AS CDE_ADMIT_TYPE2,
+         SUM(FIRSTX.CDE_ADMIT_SOURCE1) AS CDE_ADMIT_SOURCE2,
+         SUM(FIRSTX.SVCCAT1) AS SVCCAT2,
+         SUM(FIRSTX.SERV_PROV_TYP1) AS SERV_PROV_TYP2,
+         SUM(FIRSTX.REV_CODE1) AS REV_CODE2,
+         SUM(FIRSTX.POS_CODE1) AS POS_CODE2,
+         SUM(FIRSTX.POS_TYPE1) AS POS_TYPE2,
+         SUM(FIRSTX.PAID_DT1) AS PAID_DT2,
+         SUM(FIRSTX.BILL_ID_LOC1) AS BILL_ID_LOC2,
+         SUM(FIRSTX.SERV_ID_LOC1) AS SERV_ID_LOC2,
+         SUM(FIRSTX.PRS_ID_LOC1) AS PRS_ID_LOC2,
+         SUM(FIRSTX.ACO1) AS ACO2,
+         SUM(FIRSTX.AMTTPL1) AS AMTTPL2,
+         SUM(FIRSTX.AMTCOPAY1) AS AMTCOPAY2,
+         SUM(FIRSTX.AMTCOINS1) AS AMTCOINS2,
+         SUM(FIRSTX.CLMDISP1) AS CLMDISP2,
+         SUM(FIRSTX.CLMNUM1) AS CLMNUM2,
+         SUM(FIRSTX.CLMSUF1) AS CLMSUF2,
+         SUM(FIRSTX.NUMLOGCLM1) AS NUMLOGCLM2
+         FROM
+         /*********************************** SUB SELECT TO ASSESS AND ASSIGN VALUES *************************/
+         (SELECT
+         CDE_ENC_MCO,
+         TO_CHAR(DOS_FROM,'YYYY-MM') AS DOS_YRMONTH,
+         ACO,
+         /* MEMBER ID - Field 76*/
+         case when substr(MX.ID_MEDICAID,1,1) = '1' then 1 else 0 end ID_MEDICAID1,
+         /* FROM DOS - Field 17 */
+         case when MX.DOS_FROM IS NOT NULL THEN 1 else 0 end DOS_FROM1 ,
+         /* THRU DOS - Field 18 */
+         case when MX.DOS_THRU IS NOT NULL then 1 else 0 end DOS_THRU1 ,
+         /*  SERVICING PROVIDER ID - Field 50*/
+         CASE WHEN ENC_SERV_PROV_ID = '+' THEN 0
+         WHEN ENC_SERV_PROV_ID = '-' THEN 0
+         WHEN ENC_SERV_PROV_ID = ' ' THEN 0
+         else 1
+         END SERV_PROV_ID1,
+         /* SERVICING PROVIDER ID TYPE - Field 51 */
+         case when substr(SERV_PROV_ID_TYPE,1,1)  IN ('1','6','9')  then 1 else 0 end SERV_PROV_ID_TYP1 ,
+         /* SERVICING PROVIDER TYPE */
+         CASE WHEN ENC_SERV_PROV_TYPE NOT IN (' ','-','+','#') THEN 1 else 0 END SERV_PROV_TYP1,
+         /* SERVICING SPECIALTY */
+         CASE WHEN SERV_PROV_SPECIALTY NOT IN (' ','-','+','#') THEN 1 else 0 END SERV_PROV_SPEC1,
+         /* BILLING PROVIDER ID - Field 58*/
+         CASE WHEN MX.ENC_BILL_PROV_ID = '+' THEN 0
+         WHEN MX.ENC_BILL_PROV_ID = '-' THEN 0
+         WHEN MX.ENC_BILL_PROV_ID = ' ' THEN 0
+         else 1
+         END BILL_PROV_ID1 ,
+         /* BILLING PROVIDER ID TYPE - Field 93 */
+         case when substr(BILL_PROV_ID_TYPE,1,1)  IN ('1','6','9')  then 1 else 0 end BILL_PROV_ID_TYP1 ,
+         /* PRESCRIBING PROVIDER ID - ON PHARM CLAIMS ONLY - Field 81 */
+         CASE WHEN CLAIM_TYPE = 'P' AND CDE_DRUG_CLASS='F' AND ENC_PRES_PROV_ID NOT IN ('+','-',' ') THEN 1
+         else 0
+         END PRESCRIBE_PROV1,
+         /* PRESCRIBING PROVIDER ID TYPE - ON PHARM CLAIMS ONLY - Field 95 */
+         case when CLAIM_TYPE='P' AND CDE_DRUG_CLASS='F' AND substr(MX.PRES_PROV_ID_TYPE,1,1) In ('1','6','8') then 1
+         else 0
+         END PRES_PROV_ID_TYP1,
+         /* PRIMARY DIAGNOSIS */
+         case when CDE_ENC_REC_IND <> '0' AND CLAIM_TYPE IN('I','M','O','L') AND primary_diag not in ('+','-', ' ') then 1 else 0 end as PRIMARY_DIAG1,
+         /* CDE_ICD_VERSION */
+         case when CDE_ENC_REC_IND <> '0' AND CLAIM_TYPE IN('I','M','O','L') AND cde_icd_version in('9','10')  and (ENCSRGGRP_SEQ>0 or diagrp_seq>0)
+         then 1 else 0 end as CDE_ICD_VERSION1,
+         /* PROC_CODE */
+         case when CDE_ENC_REC_IND <> '0' AND  ((claim_type in('O') and
+         (proc_code not in(' ','-','+','#') or ((cde_revenue between 250 and 259) or (cde_revenue = 260) or  (cde_revenue between 262 and 279) or
+         (cde_revenue between 370 and 372) or (cde_revenue = 374) or (cde_revenue = 379) or (cde_revenue = 710) or
+         (cde_revenue = 839) or (cde_revenue = 902) or (cde_revenue = 946) or (cde_revenue = 947) or (cde_revenue = 961) or
+         (cde_revenue = 962) or (cde_revenue = 963) or (cde_revenue = 973) or (cde_revenue = 974) or (cde_revenue = 975) or
+         (cde_revenue = 981) or (cde_revenue = 982) or (cde_revenue = 983) or (cde_revenue = 988)))) or
+         (claim_type in('D','M') and proc_code not in(' ','-','+','#')) or
+         (claim_type in ('O','D','M') and cde_enc_proc_type ='7' and proc_code_enc not in(' ','-','+','#')))
+         then 1 else 0 end as proc_code1,
+         /* PROC_CODE: professional claims only*/
+         case when CDE_ENC_REC_IND <> '0' AND claim_type in('M') and (proc_code not in(' ','-','+','#') or 
+                   (cde_enc_proc_type ='7' and proc_code_enc not in(' ','-','+','#')))
+                   then 1 else 0 
+         end as proc_code1a,
+         /* PROC_CODE: outpt and dental claims only*/
+         case when CDE_ENC_REC_IND <> '0' AND ((claim_type in('O') and
+         (proc_code not in(' ','-','+','#') or ((cde_revenue between 250 and 259) or (cde_revenue = 260) or  (cde_revenue between 262 and 279) or
+         (cde_revenue between 370 and 372) or (cde_revenue = 374) or (cde_revenue = 379) or (cde_revenue = 710) or
+         (cde_revenue = 839) or (cde_revenue = 902) or (cde_revenue = 946) or (cde_revenue = 947) or (cde_revenue = 961) or
+         (cde_revenue = 962) or (cde_revenue = 963) or (cde_revenue = 973) or (cde_revenue = 974) or (cde_revenue = 975) or
+         (cde_revenue = 981) or (cde_revenue = 982) or (cde_revenue = 983) or (cde_revenue = 988)))) or
+         (claim_type in('D') and proc_code not in(' ','-','+','#')) or
+         (claim_type in ('O','D') and cde_enc_proc_type ='7' and proc_code_enc not in(' ','-','+','#')))
+         then 1 else 0 end as proc_code1b,
+         /* PROC MODIFIER claim type M (DME) Janes mods */
+         case when CDE_ENC_REC_IND <> '0' AND claim_type in('M') and (substr(proc_code,1,1) in('E','K')  or
+         (cde_enc_proc_type ='7' and substr(proc_code_enc,1,1) in('E','K'))) and
+         (proc_modifier1 in('RR','NU','UE') or proc_modifier2 in('RR','NU','UE') or proc_modifier3 in('RR','NU','UE') or proc_modifier4 in('RR','NU','UE'))
+         then 1 else 0 end as proc_mod_DME,
+         /* PROC MODIFIER claim type M (lab/xray) all mods */
+         case when CDE_ENC_REC_IND <> '0' AND claim_type in('M') and (substr(proc_code,1,1) in('7')  or
+         (cde_enc_proc_type ='7' and substr(proc_code_enc,1,1) in('7'))) and
+         (proc_modifier1 not in('+',' ','-') or proc_modifier2 not in('+',' ','-') or proc_modifier3 not in('+',' ','-') or proc_modifier4 not in('+',' ','-'))
+         then 1 else 0 end as proc_mod_LABXRAY,
+         /* PROC MODIFIER claim type M (surgery) all mods */
+         case when cde_enc_rec_ind <> '0' and claim_type in('M') and
+         ((proc_code between '10021' and '69990' and substr(proc_code,5,1) in('0','1','2','3','4','5','6','7','8','9') and proc_code_desc not in ('Unknown','N/A')) or
+         (cde_enc_proc_type ='7' and proc_code_enc between '10021' and '69990' and substr(proc_code_enc,5,1) in('0','1','2','3','4','5','6','7','8','9') and
+         proc_code_enc_desc not in('Unknown','N/A'))) and
+         (proc_modifier1 not in('+',' ','-') or proc_modifier2 not in('+',' ','-') or proc_modifier3 not in('+',' ','-') or proc_modifier4 not in('+',' ','-'))
+         then 1 else 0 end as proc_mod_SURGERYM,
+         /* QTY UNITS BILLED */
+         case when CLAIM_TYPE <> 'P' and qty_units_billed is not null then 1 else 0 end as QTY_UNITS_BILLED1, /*updated 7.2.18*/
+         /* BILLING PROVIDER NPI */
+         /*added zero as fail 8.26.16 see email Fallon and NPIs generally*/
+         case when CDE_ENC_REC_IND <> '0' AND CLAIM_TYPE not in ('P','D') and MX.BILL_NPI NOT IN('MISSING','+','-',' ','0') then 1 else 0 end as BILL_PRV_NPI,
+         /* SERVICING PROVIDER NPI */
+         /*added zero as fail 8.26.16 see email Fallon and NPIs generally*/
+         case when CDE_ENC_REC_IND <> '0' AND CLAIM_TYPE not in ('P','D') and MX.SERV_NPI NOT IN('MISSING','+','-',' ','0') then 1 else 0 end as SERV_PRV_NPI,
+         /* DATE SCRIPT WRITTEN - Field 82*/
+         case when MX.claim_type='P' AND CDE_DRUG_CLASS='F' AND MX.DATE_SCRIPT_WRITTEN IS NOT NULL
+         then 1 else 0 end as scriptwrit1,
+         /* REFILL INDICATOR - Field 40 */
+         case when MX.claim_type='P' AND CDE_DRUG_CLASS='F' AND MX.QTY_REFILL >=0 THEN 1 ELSE 0 END AS REFILL1,
+         /* DISPENSE AS WRITTEN - FIELD 41 */
+         CASE WHEN MX.claim_type='P' AND CDE_DRUG_CLASS='F' AND
+         SUBSTR(MX.DSC_ENC_DISP_AS_WRTN,1,1) IN('0','1','2','3','4','5','6','7','8','9')
+         THEN 1 ELSE 0 END AS DISPENSE1,
+         /* PRESCRIPTION NUMBER - #198 */
+         CASE WHEN MX.claim_type='P' AND CDE_DRUG_CLASS='F' AND MX.RX_NUMBER IS NOT NULL THEN 1 ELSE 0 END AS SCRIPT1,
+         /* DISPENSING FEE - #67 */
+         CASE WHEN MX.claim_type='P' AND CDE_DRUG_CLASS='F' AND MX.AMT_NDC_PROFEE IS NOT NULL THEN 1 ELSE 0 END AS FEE1,
+         /* NDC CODE - #37 */
+         /* Only drugs not compounded 2=No, 1=Yes */
+         CASE WHEN MX.claim_type='P' AND CDE_DRUG_CLASS='F' AND  MX.IND_ENC_COMPOUND='2' AND MX.CDE_NDC NOT IN (' ','-','+','#')
+         THEN 1 ELSE 0 END AS NDC1,
+         /* CLAIM CATEGORY - #2 */
+         CASE WHEN SUBSTR(MX.DSC_ENC_CLAIM_CAT,1,1) IN ('1','2','3','4','5','6','7') THEN 1 ELSE 0 END AS CLAIMCAT1,
+         /* SERVICE CATEGORY */
+         CASE WHEN CDE_ENC_SVC_CAT not in(' ','-','+','#') then 1 else 0 end as SVCCAT1,
+         /* RECORD INDICATOR - #4 */
+         CASE WHEN SUBSTR(MX.DSC_ENC_REC_IND,1,1) IN ('0','1','2','3','4','5','6','7') THEN 1 ELSE 0 END AS RECIND1,
+         /* AMOUNT BILLED - #60 */
+         CASE WHEN MX.AMT_BILLED >=0 THEN 1 ELSE 0 END AS AMTBILL1,
+         /* NET AMOUNT PAID - #68 */
+         /* THERE ARE NEGATIVE VALUES HOW TO CAPTURE? IS NULL; updated to say amt_paid>=0 b/c there were ~9 with negative values*/
+         CASE WHEN MX.AMT_PAID >=0 THEN 1 ELSE 0 END AS AMTPAY1,
+         /* AMOUNT ALLOWED - #86 */
+         /* THERE ARE NEGATIVE VALUES HOW TO CAPTURE? IS NULL; updated to say amt_paid>=0 b/c there were ~9 with negative values*/
+         CASE WHEN MX.AMT_ALLOWED >=0 THEN 1 ELSE 0 END AS AMTALLOW1,
+         /* ADMISSION DATE */
+         case when MX.claim_type IN('I','L') and
+         (admit_dt is not null  and admit_dt <> '01JAN1900') and
+         (admit_dt <= discharge_dt or discharge_dt is null)
+         THEN 1 ELSE 0 END AS ADMITDT1,
+         /* DISCHARGE DATE */
+         case when (CLAIM_TYPE='I' AND substr(cde_type_of_bill_enc,1,2) <> '21' and SUBSTR(DSC_PATIENT_STATUS,1,2) NOT BETWEEN '31' AND '39')
+         AND (MX.DISCHARGE_DT IS NOT NULL and discharge_dt >= admit_dt) THEN 1 else 0 end DISCHARGE_DT1,
+         /*old*/
+         /*case when (CLAIM_TYPE='I' AND cde_place_of_service <> '221' and SUBSTR(DSC_PATIENT_STATUS,1,2) NOT BETWEEN '30' AND '39')
+         AND (MX.DISCHARGE_DT IS NOT NULL and discharge_dt >= admit_dt) THEN 1 else 0 end DISCHARGE_DT1,*/
+         /* ADMITTING DIAGNOSIS */
+         /*NT edit 7.26.18*/
+         case when CLAIM_TYPE IN('I') AND substr(cde_type_of_bill_enc,1,2) not in('12','22','42','62','81','82') AND CDE_DIAG_ADMIT not IN ('+','-', ' ')
+         THEN 1 else 0 END CDE_DIAG_ADMIT1,
+         /*old*/
+         /*case when CLAIM_TYPE IN('I') AND cde_place_of_service not in('212','222','242','262','281','282') AND CDE_DIAG_ADMIT not IN ('+','-', ' ')
+         THEN 1 else 0 END CDE_DIAG_ADMIT1,*/
+         /* PATIENT DISCHARGE STATUS */
+         case when CLAIM_TYPE IN('I','O') AND cde_patient_status not in ('+', '-', ' ') then 1 else 0 end as CDE_PATIENT_STATUS1,
+         /* TYPE OF ADMISSION */
+         case when CLAIM_TYPE IN('I','L') AND cde_admit_type in ('1','2','3','4','5','6','7','8','9') then 1 else 0 end as cde_admit_type1,
+         /* SOURCE OF ADMISSION */
+         case when CLAIM_TYPE IN('I','L') AND cde_admit_source  in ('1','2','3','4','5','6','7','8','9','A','B','C','D','E','F') then 1 else 0 end as cde_admit_source1,
+         /* REVENUE CODE */
+         case when CLAIM_TYPE IN('I','O','L') AND substr(dsc_revenue,1,1) in ('0','1','2','3','4','5','6','7','8','9') and cde_enc_rec_ind <> '0'
+         then 1 else 0 end as rev_code1,
+         /*updated 5.29.2018 b/c DW storing POS and TOB separately now*/
+         /* PLACE OF SERVICE */
+         /*case when CLAIM_TYPE NOT IN('P','D') AND SUBSTR(place_of_service,1,1) IN ('0','1','2','3','4','5','6','7','8','9') and
+         SUBSTR(place_of_service,2,1) IN ('0','1','2','3','4','5','6','7','8','9') THEN 1 else 0 end as pos_code1,*/
+         /* PLACE OF SERVICE (updated) */
+         case when CLAIM_TYPE NOT IN('P','D') AND
+         ( (substr(cde_place_of_service_enc,1,1) in('0','1','2','3','4','5','6','7','8','9') and
+         substr(cde_place_of_service_enc,2,1) in('0','1','2','3','4','5','6','7','8','9'))
+         or
+         (substr(cde_type_of_bill_enc,1,1) in('0','1','2','3','4','5','6','7','8','9') and
+         substr(cde_type_of_bill_enc,2,1) in('0','1','2','3','4','5','6','7','8','9'))) then 1 else 0 end as pos_code1,
+         /*updated 5.29.2018 b/c DW storing POS and TOB separately now and POS type has been retired*/
+         /* PLACE OF SERVICE TYPE */
+         /*case when claim_type not in('P','D') and 											
+         (											
+         ((cde_enc_claim_cat ='1' and substr(cde_place_of_service,1,1)='2') or (cde_enc_claim_cat ='2' and substr(cde_place_of_service,1,1)='1'))											
+         or (cde_enc_claim_cat in('3','4','5') and substr(cde_place_of_service,1,1)='1') 											
+         or (cde_enc_claim_cat in('6') and substr(cde_place_of_service,1,1)='2')											
+         )											
+         and SUBSTR(cde_place_of_service,2,1) IN ('0','1','2','3','4','5','6','7','8','9') and 											
+         SUBSTR(cde_place_of_service,3,1) IN ('0','1','2','3','4','5','6','7','8','9') THEN 1 else 0 end as pos_type1,*/
+         /* PLACE OF SERVICE TYPE (updated) */
+         case when CLAIM_TYPE NOT IN('P','D') AND
+         ((cde_enc_claim_cat in('2','3','4','5') and
+         substr(cde_place_of_service_enc,1,1) in('0','1','2','3','4','5','6','7','8','9') and
+         substr(cde_place_of_service_enc,2,1) in('0','1','2','3','4','5','6','7','8','9'))
+         or
+         (cde_enc_claim_cat in('1','6') and
+         substr(cde_type_of_bill_enc,1,1) in('0','1','2','3','4','5','6','7','8','9') and
+         substr(cde_type_of_bill_enc,2,1) in('0','1','2','3','4','5','6','7','8','9'))) then 1 else 0 end as pos_type1,
+         /*Paid Date -Field 45*/
+         case when MX.PAID_DT IS NOT NULL THEN 1 else 0 end PAID_DT1,	
+         /*Billing Provider ID address location code- field 223*/	
+         case when bill_prov_id_loc_code not in(' ','+','#','-') then 1 else 0 end as bill_id_loc1,
+         									
+         /*Servicing Provider ID address location code- field 227*/	
+         case when serv_prov_id_loc_code not in(' ','+','#','-') then 1 else 0 end as serv_id_loc1,
+         		
+         /*Prescribing Provider ID address location code- field 224*/	
+         case when CLAIM_TYPE = 'P' AND CDE_DRUG_CLASS = 'F' and prs_prov_id_loc_code not in(' ','+','#','-') then 1 else 0 end as prs_id_loc1,
+         /*ENTITY PIDSLs are used to derive cde_enc_MCO and cde_enc_ACO names, and are available in ODS only: ACO*/
+         case when cde_enc_aco not in(' ','+','#','-') then 1 else 0 end as aco1,
+         /* TPL AMOUNT */
+         case when amt_tpl >= 0 then 1 else 0 end as amttpl1,
+         /* COPAY AMOUNT */
+         case when amt_copay >= 0 then 1 else 0 end as amtcopay1,
+         /* COINSURANCE AMOUNT */
+         case when amt_coinsurance >=0 then 1 else 0 end as amtcoins1,
+         /* RECORD TYPE */
+         case when cde_clm_disposition in ('O','V','R','A') then 1 else 0 end as clmdisp1,
+         /* CLAIM NUMBER */
+         case when enc_claim_no is not null then 1 else 0 end as clmnum1,
+         /* CLAIM SUFFIX */
+         case when enc_claim_suffix is not null then 1 else 0 end as clmsuf1,
+         /* MOTHER-CHILD CLAIM ID */
+         case when num_logical_claim is not null then 1 else 0 end as numlogclm1
+         											
+         FROM MCO_MBHP_DOS_&MONYY.   MX
+         )  FIRSTX
+         GROUP BY FIRSTX.CDE_ENC_MCO, firstx.DOS_YRMONTH, firstx.ACO
+
+CREATE TABLE MCO_MBH_PTPDOS_&MONYY.
+         NOLOGGING
+         COMPRESS
+         AS
+         SELECT
+         I.CDE_ENC_MCO,
+         I.DOS_YRMONTH,
+         I.ACO,
+         S.TOT_INPAT,
+         S.TOT_PHARM,
+         S.TOT_OUTPT,
+         S.TOT_OUTPTQ2,
+         S.TOT_DENT,
+         S.TOT_DENTQ2,
+         S.TOT_MED,
+         S.TOT_MEDQ2,
+         S.TOT_NON_PHRM_DENTQ2,
+         S.TOT_PHARM_SCRIPT,
+         S.TOT_PHARMSCRIPT_NOTCOMP,
+         S.TOT_NONPHARM,
+         S.TOT_INPT_LTC,
+         S.TOT_INPT_OUTPT_LTC,
+         S.TOT_INP_OP_LTC_M_EXCQ2,
+         S.TOT_NON_PHRM_DENT,
+         S.TOT_INPAT_FILTER1,
+         S.TOT_INPAT_FILTER2,
+         S.TOT_MOD_DME,
+         S.TOT_MOD_LABXRAY,
+         S.TOT_MOD_SURGERYM,
+         S.TOT_INOUTLTC_NOART,
+         S.TOT_INPT_OUTPT,
+         S.TOT_REX AS TOT_RECORDS,
+         /* MEMBER ID - Field 76*/
+         case when  I.ID_MEDICAID2 = 0 then  0
+         ELSE (trunc((I.ID_MEDICAID2 / S.TOT_REX),4))
+         end as PCT_ID_MEDICAID,
+         /* FROM DOS - Field 17 */
+         case when  DOS_FROM2 = 0 then  0
+         else  trunc((DOS_FROM2 / S.TOT_REX),4)
+         end as PCT_DOS_FROM,
+         /* THRU DOS - Field 18 */
+         case when  DOS_THRU2 = 0 then  0
+         else  trunc((DOS_THRU2 / S.TOT_REX),4)
+         end as PCT_DOS_THRU,
+         /*  SERVICING PROVIDER ID - Field 50*/
+         case when  SERV_PROV_ID2 = 0 then  0
+         else  trunc((SERV_PROV_ID2 / S.TOT_REX),4)
+         end as PCT_SERV_PROV_ID,
+         /* SERVICING PROVIDER ID TYPE - Field 51 */
+         CASE WHEN SERV_PROV_ID_TYP2 = 0 THEN 0
+         ELSE trunc((SERV_PROV_ID_TYP2/S.TOT_REX),4)
+         END AS PCT_SERV_PROV_ID_TYP,
+         CASE WHEN SERV_PROV_TYP2 = 0 THEN 0
+         ELSE trunc((SERV_PROV_TYP2/S.TOT_REX),4)
+         END AS PCT_SERV_PROV_TYP,
+         CASE WHEN SERV_PROV_spec2 = 0 THEN 0
+         ELSE trunc((SERV_PROV_spec2/S.TOT_REX),4)
+         END AS PCT_SERV_PROV_spec,
+         /* BILLING PROVIDER ID - Field 58*/
+         case when  BILL_PROV_ID2 = 0 then  0
+         else  trunc((BILL_PROV_ID2 / S.TOT_REX),4)
+         end as PCT_BILL_PROV_ID,
+         /* BILLING PROVIDER ID TYPE - Field 93 */
+         CASE WHEN BILL_PROV_ID_TYP2 = 0 THEN 0
+         ELSE trunc((BILL_PROV_ID_TYP2/S.TOT_REX),4)
+         END AS PCT_BILL_PROV_ID_TYP,
+         /* PRESCRIBING PROVIDER ID - ON PHARM CLAIMS ONLY EXCLUDE OTC- Field 81 */
+         case when  PRESCRIBE_PROV2 = 0 then  0
+         else  trunc((PRESCRIBE_PROV2 / S.TOT_PHARM_SCRIPT),4)
+         end as PCT_PRESCRIBE_PROV_ID,
+         /* PRESCRIBING PROVIDER ID TYPE - ON PHARM CLAIMS ONLY EXCLUDE OTC- Field 95 */
+         CASE WHEN PRES_PROV_ID_TYP2 = 0 THEN 0
+         ELSE trunc((PRES_PROV_ID_TYP2/S.TOT_PHARM_SCRIPT),4)
+         END AS PCT_PRES_PROV_ID_TYP,
+         /* PRIMARY DIAGNOSIS */
+         case when primary_diag2 = 0 then 0
+         else trunc((primary_diag2 / S.TOT_NON_PHRM_DENTQ2),4)
+         END AS PCT_PRIMARY_DIAG,
+         /* ICD VERSION */
+         case when cde_icd_version2 = 0 then 0
+         else trunc((cde_icd_version2 / S.TOT_INP_OP_LTC_M_EXCQ2),4)
+         END AS PCT_ICD_VERSION,
+         /* PROCEDURE CODE */
+         case when proc_code2 = 0 then 0
+         else trunc((proc_code2 / (S.TOT_OUTPTQ2+S.TOT_DENTQ2+S.TOT_MEDQ2)),4)
+         END AS PCT_PROC_CODE,
+         case when proc_code2_o_d = 0 or (s.tot_outptQ2=0 and s.tot_dentQ2=0) then 0
+         else trunc((proc_code2_o_d / (S.TOT_OUTPTQ2+S.TOT_DENTQ2)),4)
+         END AS PCT_PROC_CODE_O_D,
+         case when proc_code2_m = 0 or (s.tot_medQ2=0) then 0
+         else trunc((proc_code2_m / (S.TOT_MEDQ2)),4)
+         END AS PCT_PROC_CODE_M,
+         /* PROC MODIFIER */
+         case when proc_mod_dme2 = 0 then 0
+         else trunc((proc_mod_dme2 / (S.TOT_MOD_DME)),4)
+         END AS PCT_PROC_mod_DME,
+         case when proc_mod_labxray2 = 0 then 0
+         else trunc((proc_mod_labxray2 / (S.TOT_MOD_LABXRAY)),4)
+         END AS PCT_PROC_mod_LABXRAY,
+         case when proc_mod_surgerym2 = 0 then 0
+         else trunc((proc_mod_surgerym2 / (S.TOT_MOD_SURGERYM)),4)
+         END AS PCT_PROC_mod_SURGERYM,
+         case when qty_unit_bill2 =0 then 0
+         else trunc ((qty_unit_bill2 / (S.TOT_NONPHARM)),4)
+         END AS PCT_qty_unit_bill,
+         /* BILLING PROVIDER NPI */
+         case when bill_npi2 = 0 then 0
+         else trunc((bill_npi2 / S.TOT_NON_PHRM_DENTQ2),4)
+         END AS PCT_BILL_NPI,
+         /* SERVICING PROVIDER NPI */
+         case when serv_npi2 = 0 then 0
+         else trunc((serv_npi2 / S.TOT_NON_PHRM_DENTQ2),4)
+         END AS PCT_SERV_NPI,
+         /* DATE SCRIPT WRITTEN */
+         case when  SCRIPTWRIT2 = 0 then  0
+         ELSE (trunc((SCRIPTWRIT2 / S.TOT_PHARM_SCRIPT),4))
+         end as PCT_SCRIPT_WRITTEN,
+         case when REFILL2 = 0 THEN 0
+         ELSE (trunc((REFILL2 / S.TOT_PHARM_SCRIPT),4))
+         end as PCT_REFILL,
+         case when DISPENSE2 = 0 THEN 0
+         ELSE (trunc((DISPENSE2 / S.TOT_PHARM_SCRIPT),4))
+         end as PCT_DISPENSE,
+         case when SCRIPT2 = 0 THEN 0
+         ELSE (trunc((SCRIPT2 / S.TOT_PHARM_SCRIPT),4))
+         end as PCT_SCRIPT,
+         case when FEE2 = 0 THEN 0
+         ELSE (trunc((FEE2 / S.TOT_PHARM_SCRIPT),4))
+         end as PCT_FEE,
+         case when NDC2 = 0 THEN 0
+         ELSE (trunc((NDC2 / S.TOT_PHARMSCRIPT_NOTCOMP),4))
+         end as PCT_NDC,
+         case when CLAIMCAT2 = 0 THEN 0
+         ELSE (trunc((CLAIMCAT2 / S.TOT_REX),4))
+         end as PCT_CLAIMCAT,
+         case when svccat2 =0 then 0
+         else trunc ((svccat2 / (S.TOT_rex)),4)
+         END AS PCT_svc_cat,
+         case when RECIND2 = 0 THEN 0
+         ELSE (trunc((RECIND2 / S.TOT_REX),4))
+         end as PCT_RECIND,
+         case when AMTBILL2 = 0 THEN 0
+         ELSE (trunc((AMTBILL2 / S.TOT_REX),4))
+         end as PCT_AMTBILL,
+         case when AMTPAY2 = 0 THEN 0
+         ELSE (trunc((AMTPAY2 / S.TOT_REX),4))
+         end as PCT_AMTPAY,
+         case when AMTALLOW2 = 0 THEN 0
+         ELSE (trunc((AMTALLOW2 / S.TOT_REX),4))
+         end as PCT_AMTALLOW,
+         case when  ADMITDT2 = 0 then  0
+         ELSE (trunc((ADMITDT2 / (S.TOT_INPT_LTC)),4))
+         end as PCT_ADMITDT,
+         case when DISCHARGEDT2 = 0 THEN 0
+         ELSE (trunc((DISCHARGEDT2 / S.TOT_INPAT_FILTER1),4))
+         end as PCT_DISCHARGEDT,
+         case when CDE_DIAG_ADMIT2 = 0 THEN 0
+         ELSE (trunc((CDE_DIAG_ADMIT2 / S.TOT_INPAT_FILTER2),4))
+         end as PCT_DIAG_ADMIT,
+         case when CDE_PATIENT_STATUS2 = 0 THEN 0
+         ELSE (trunc((CDE_PATIENT_STATUS2 / S.TOT_INPT_OUTPT),4))
+         end as PCT_PATIENT_STATUS,
+         case when CDE_ADMIT_TYPE2 = 0 THEN 0
+         ELSE (trunc((CDE_ADMIT_TYPE2 / S.TOT_INPT_LTC),4))
+         end as PCT_ADMIT_TYPE,
+         case when CDE_ADMIT_SOURCE2 = 0 THEN 0
+         ELSE (trunc((CDE_ADMIT_SOURCE2 / S.TOT_INPT_LTC),4))
+         end as PCT_ADMIT_SOURCE,
+         case when REV_CODE2 = 0 THEN 0
+         ELSE (trunc((REV_CODE2 / S.TOT_INOUTLTC_NOART),4))
+         end as PCT_REV_CODE,
+         case when POS_CODE2 = 0 THEN 0
+         ELSE (trunc((POS_CODE2 / S.TOT_NON_PHRM_DENT),4))
+         end as PCT_POS_CODE,
+         case when POS_TYPE2 = 0 THEN 0
+         ELSE (trunc((POS_TYPE2 / S.TOT_NON_PHRM_DENT),4))
+         end as PCT_POS_TYPE,
+         case when  PAID_DT2 = 0 then  0
+         else  trunc((PAID_DT2 / S.TOT_REX),4)
+         end as PCT_PAID_DT,
+         CASE WHEN SERV_ID_LOC2 = 0 THEN 0
+         ELSE trunc((SERV_ID_LOC2/S.TOT_REX),4)
+         END AS PCT_SERV_ID_LOC,
+         CASE WHEN BILL_ID_LOC2 = 0 THEN 0
+         ELSE trunc((BILL_ID_LOC2/S.TOT_REX),4)
+         END AS PCT_BILL_ID_LOC,
+         CASE WHEN PRS_ID_LOC2 = 0 THEN 0
+         ELSE trunc((PRS_ID_LOC2/S.TOT_PHARM_SCRIPT),4)
+         END AS PCT_PRS_ID_LOC,
+         CASE WHEN ACO2 = 0 THEN 0
+         ELSE trunc((ACO2/S.TOT_REX),4)
+         END AS PCT_ACO,
+         /* TPL AMOUNT */
+         CASE WHEN AMTTPL2 = 0 THEN 0
+         ELSE TRUNC((AMTTPL2/S.TOT_REX),4)
+         END AS PCT_TPL,
+         /* AMT COPAY */
+         CASE WHEN AMTCOPAY2 = 0 THEN 0
+         ELSE TRUNC((AMTCOPAY2/S.TOT_REX),4)
+         END AS PCT_COPAY,
+         /* AMT COINSURANCE */
+         CASE WHEN AMTCOINS2 = 0 THEN 0
+         ELSE TRUNC((AMTCOINS2/S.TOT_REX),4)
+         END AS PCT_COINS,
+         /* RECORD TYPE */
+         CASE WHEN CLMDISP2 = 0 THEN 0
+         ELSE TRUNC((CLMDISP2/S.TOT_REX),4)
+         END AS PCT_CLMDISP,
+         /* CLAIM NUMBER */
+         CASE WHEN CLMNUM2 = 0 THEN 0
+         ELSE TRUNC((CLMNUM2/S.TOT_REX),4)
+         END AS PCT_CLMNUM,
+         /* CLAIM SUFFIX */
+         CASE WHEN CLMSUF2 = 0 THEN 0
+         ELSE TRUNC((CLMSUF2/S.TOT_REX),4)
+         END AS PCT_CLMSUF,
+         /* MOTHER-CHILD CLAIM ID */
+         CASE WHEN NUMLOGCLM2 = 0 THEN 0
+         ELSE TRUNC((NUMLOGCLM2/S.TOT_REX),4)
+         END AS PCT_NUMLOGCLM
+         FROM MCO_MBH_FRPDOS_&MONYY. I
+         INNER JOIN MCO_MBH_TPDOS_&MONYY. S ON I.CDE_ENC_MCO = S.CDE_ENC_MCO AND I.DOS_YRMONTH=S.DOS_YRMONTH AND I.ACO = S.ACO
+         order by cde_enc_mco,dos_yrmonth,aco
+

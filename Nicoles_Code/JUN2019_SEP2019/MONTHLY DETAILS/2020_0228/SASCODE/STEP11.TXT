@@ -1,0 +1,227 @@
+PROC SQL; 
+CONNECT TO ORACLE (PATH=DWP1RAC DBPROMPT=NO DEFER=NO USER=tibbettsn PASSWORD='Rhc9#mTps') ;
+ EXECUTE (
+         CREATE TABLE MCO_MBH_PTPDOS_&MONYY.
+         NOLOGGING
+         COMPRESS
+         AS
+         SELECT
+         I.CDE_ENC_MCO,
+         I.DOS_YRMONTH,
+         I.ACO,
+         S.TOT_INPAT,
+         S.TOT_PHARM,
+         S.TOT_OUTPT,
+         S.TOT_OUTPTQ2,
+         S.TOT_DENT,
+         S.TOT_DENTQ2,
+         S.TOT_MED,
+         S.TOT_MEDQ2,
+         S.TOT_NON_PHRM_DENTQ2,
+         S.TOT_PHARM_SCRIPT,
+         S.TOT_PHARMSCRIPT_NOTCOMP,
+         S.TOT_NONPHARM,
+         S.TOT_INPT_LTC,
+         S.TOT_INPT_OUTPT_LTC,
+         S.TOT_INP_OP_LTC_M_EXCQ2,
+         S.TOT_NON_PHRM_DENT,
+         S.TOT_INPAT_FILTER1,
+         S.TOT_INPAT_FILTER2,
+         S.TOT_MOD_DME,
+         S.TOT_MOD_LABXRAY,
+         S.TOT_MOD_SURGERYM,
+         S.TOT_INOUTLTC_NOART,
+         S.TOT_INPT_OUTPT,
+         S.TOT_REX AS TOT_RECORDS,
+         /* MEMBER ID - Field 76*/
+         case when  I.ID_MEDICAID2 = 0 then  0
+         ELSE (trunc((I.ID_MEDICAID2 / S.TOT_REX),4))
+         end as PCT_ID_MEDICAID,
+         /* FROM DOS - Field 17 */
+         case when  DOS_FROM2 = 0 then  0
+         else  trunc((DOS_FROM2 / S.TOT_REX),4)
+         end as PCT_DOS_FROM,
+         /* THRU DOS - Field 18 */
+         case when  DOS_THRU2 = 0 then  0
+         else  trunc((DOS_THRU2 / S.TOT_REX),4)
+         end as PCT_DOS_THRU,
+         /*  SERVICING PROVIDER ID - Field 50*/
+         case when  SERV_PROV_ID2 = 0 then  0
+         else  trunc((SERV_PROV_ID2 / S.TOT_REX),4)
+         end as PCT_SERV_PROV_ID,
+         /* SERVICING PROVIDER ID TYPE - Field 51 */
+         CASE WHEN SERV_PROV_ID_TYP2 = 0 THEN 0
+         ELSE trunc((SERV_PROV_ID_TYP2/S.TOT_REX),4)
+         END AS PCT_SERV_PROV_ID_TYP,
+         CASE WHEN SERV_PROV_TYP2 = 0 THEN 0
+         ELSE trunc((SERV_PROV_TYP2/S.TOT_REX),4)
+         END AS PCT_SERV_PROV_TYP,
+         CASE WHEN SERV_PROV_spec2 = 0 THEN 0
+         ELSE trunc((SERV_PROV_spec2/S.TOT_REX),4)
+         END AS PCT_SERV_PROV_spec,
+         /* BILLING PROVIDER ID - Field 58*/
+         case when  BILL_PROV_ID2 = 0 then  0
+         else  trunc((BILL_PROV_ID2 / S.TOT_REX),4)
+         end as PCT_BILL_PROV_ID,
+         /* BILLING PROVIDER ID TYPE - Field 93 */
+         CASE WHEN BILL_PROV_ID_TYP2 = 0 THEN 0
+         ELSE trunc((BILL_PROV_ID_TYP2/S.TOT_REX),4)
+         END AS PCT_BILL_PROV_ID_TYP,
+         /* PRESCRIBING PROVIDER ID - ON PHARM CLAIMS ONLY EXCLUDE OTC- Field 81 */
+         case when  PRESCRIBE_PROV2 = 0 then  0
+         else  trunc((PRESCRIBE_PROV2 / S.TOT_PHARM_SCRIPT),4)
+         end as PCT_PRESCRIBE_PROV_ID,
+         /* PRESCRIBING PROVIDER ID TYPE - ON PHARM CLAIMS ONLY EXCLUDE OTC- Field 95 */
+         CASE WHEN PRES_PROV_ID_TYP2 = 0 THEN 0
+         ELSE trunc((PRES_PROV_ID_TYP2/S.TOT_PHARM_SCRIPT),4)
+         END AS PCT_PRES_PROV_ID_TYP,
+         /* PRIMARY DIAGNOSIS */
+         case when primary_diag2 = 0 then 0
+         else trunc((primary_diag2 / S.TOT_NON_PHRM_DENTQ2),4)
+         END AS PCT_PRIMARY_DIAG,
+         /* ICD VERSION */
+         case when cde_icd_version2 = 0 then 0
+         else trunc((cde_icd_version2 / S.TOT_INP_OP_LTC_M_EXCQ2),4)
+         END AS PCT_ICD_VERSION,
+         /* PROCEDURE CODE */
+         case when proc_code2 = 0 then 0
+         else trunc((proc_code2 / (S.TOT_OUTPTQ2+S.TOT_DENTQ2+S.TOT_MEDQ2)),4)
+         END AS PCT_PROC_CODE,
+         case when proc_code2_o_d = 0 or (s.tot_outptQ2=0 and s.tot_dentQ2=0) then 0
+         else trunc((proc_code2_o_d / (S.TOT_OUTPTQ2+S.TOT_DENTQ2)),4)
+         END AS PCT_PROC_CODE_O_D,
+         case when proc_code2_m = 0 or (s.tot_medQ2=0) then 0
+         else trunc((proc_code2_m / (S.TOT_MEDQ2)),4)
+         END AS PCT_PROC_CODE_M,
+         /* PROC MODIFIER */
+         case when proc_mod_dme2 = 0 then 0
+         else trunc((proc_mod_dme2 / (S.TOT_MOD_DME)),4)
+         END AS PCT_PROC_mod_DME,
+         case when proc_mod_labxray2 = 0 then 0
+         else trunc((proc_mod_labxray2 / (S.TOT_MOD_LABXRAY)),4)
+         END AS PCT_PROC_mod_LABXRAY,
+         case when proc_mod_surgerym2 = 0 then 0
+         else trunc((proc_mod_surgerym2 / (S.TOT_MOD_SURGERYM)),4)
+         END AS PCT_PROC_mod_SURGERYM,
+         case when qty_unit_bill2 =0 then 0
+         else trunc ((qty_unit_bill2 / (S.TOT_NONPHARM)),4)
+         END AS PCT_qty_unit_bill,
+         /* BILLING PROVIDER NPI */
+         case when bill_npi2 = 0 then 0
+         else trunc((bill_npi2 / S.TOT_NON_PHRM_DENTQ2),4)
+         END AS PCT_BILL_NPI,
+         /* SERVICING PROVIDER NPI */
+         case when serv_npi2 = 0 then 0
+         else trunc((serv_npi2 / S.TOT_NON_PHRM_DENTQ2),4)
+         END AS PCT_SERV_NPI,
+         /* DATE SCRIPT WRITTEN */
+         case when  SCRIPTWRIT2 = 0 then  0
+         ELSE (trunc((SCRIPTWRIT2 / S.TOT_PHARM_SCRIPT),4))
+         end as PCT_SCRIPT_WRITTEN,
+         case when REFILL2 = 0 THEN 0
+         ELSE (trunc((REFILL2 / S.TOT_PHARM_SCRIPT),4))
+         end as PCT_REFILL,
+         case when DISPENSE2 = 0 THEN 0
+         ELSE (trunc((DISPENSE2 / S.TOT_PHARM_SCRIPT),4))
+         end as PCT_DISPENSE,
+         case when SCRIPT2 = 0 THEN 0
+         ELSE (trunc((SCRIPT2 / S.TOT_PHARM_SCRIPT),4))
+         end as PCT_SCRIPT,
+         case when FEE2 = 0 THEN 0
+         ELSE (trunc((FEE2 / S.TOT_PHARM_SCRIPT),4))
+         end as PCT_FEE,
+         case when NDC2 = 0 THEN 0
+         ELSE (trunc((NDC2 / S.TOT_PHARMSCRIPT_NOTCOMP),4))
+         end as PCT_NDC,
+         case when CLAIMCAT2 = 0 THEN 0
+         ELSE (trunc((CLAIMCAT2 / S.TOT_REX),4))
+         end as PCT_CLAIMCAT,
+         case when svccat2 =0 then 0
+         else trunc ((svccat2 / (S.TOT_rex)),4)
+         END AS PCT_svc_cat,
+         case when RECIND2 = 0 THEN 0
+         ELSE (trunc((RECIND2 / S.TOT_REX),4))
+         end as PCT_RECIND,
+         case when AMTBILL2 = 0 THEN 0
+         ELSE (trunc((AMTBILL2 / S.TOT_REX),4))
+         end as PCT_AMTBILL,
+         case when AMTPAY2 = 0 THEN 0
+         ELSE (trunc((AMTPAY2 / S.TOT_REX),4))
+         end as PCT_AMTPAY,
+         case when AMTALLOW2 = 0 THEN 0
+         ELSE (trunc((AMTALLOW2 / S.TOT_REX),4))
+         end as PCT_AMTALLOW,
+         case when  ADMITDT2 = 0 then  0
+         ELSE (trunc((ADMITDT2 / (S.TOT_INPT_LTC)),4))
+         end as PCT_ADMITDT,
+         case when DISCHARGEDT2 = 0 THEN 0
+         ELSE (trunc((DISCHARGEDT2 / S.TOT_INPAT_FILTER1),4))
+         end as PCT_DISCHARGEDT,
+         case when CDE_DIAG_ADMIT2 = 0 THEN 0
+         ELSE (trunc((CDE_DIAG_ADMIT2 / S.TOT_INPAT_FILTER2),4))
+         end as PCT_DIAG_ADMIT,
+         case when CDE_PATIENT_STATUS2 = 0 THEN 0
+         ELSE (trunc((CDE_PATIENT_STATUS2 / S.TOT_INPT_OUTPT),4))
+         end as PCT_PATIENT_STATUS,
+         case when CDE_ADMIT_TYPE2 = 0 THEN 0
+         ELSE (trunc((CDE_ADMIT_TYPE2 / S.TOT_INPT_LTC),4))
+         end as PCT_ADMIT_TYPE,
+         case when CDE_ADMIT_SOURCE2 = 0 THEN 0
+         ELSE (trunc((CDE_ADMIT_SOURCE2 / S.TOT_INPT_LTC),4))
+         end as PCT_ADMIT_SOURCE,
+         case when REV_CODE2 = 0 THEN 0
+         ELSE (trunc((REV_CODE2 / S.TOT_INOUTLTC_NOART),4))
+         end as PCT_REV_CODE,
+         case when POS_CODE2 = 0 THEN 0
+         ELSE (trunc((POS_CODE2 / S.TOT_NON_PHRM_DENT),4))
+         end as PCT_POS_CODE,
+         case when POS_TYPE2 = 0 THEN 0
+         ELSE (trunc((POS_TYPE2 / S.TOT_NON_PHRM_DENT),4))
+         end as PCT_POS_TYPE,
+         case when  PAID_DT2 = 0 then  0
+         else  trunc((PAID_DT2 / S.TOT_REX),4)
+         end as PCT_PAID_DT,
+         CASE WHEN SERV_ID_LOC2 = 0 THEN 0
+         ELSE trunc((SERV_ID_LOC2/S.TOT_REX),4)
+         END AS PCT_SERV_ID_LOC,
+         CASE WHEN BILL_ID_LOC2 = 0 THEN 0
+         ELSE trunc((BILL_ID_LOC2/S.TOT_REX),4)
+         END AS PCT_BILL_ID_LOC,
+         CASE WHEN PRS_ID_LOC2 = 0 THEN 0
+         ELSE trunc((PRS_ID_LOC2/S.TOT_PHARM_SCRIPT),4)
+         END AS PCT_PRS_ID_LOC,
+         CASE WHEN ACO2 = 0 THEN 0
+         ELSE trunc((ACO2/S.TOT_REX),4)
+         END AS PCT_ACO,
+         /* TPL AMOUNT */
+         CASE WHEN AMTTPL2 = 0 THEN 0
+         ELSE TRUNC((AMTTPL2/S.TOT_REX),4)
+         END AS PCT_TPL,
+         /* AMT COPAY */
+         CASE WHEN AMTCOPAY2 = 0 THEN 0
+         ELSE TRUNC((AMTCOPAY2/S.TOT_REX),4)
+         END AS PCT_COPAY,
+         /* AMT COINSURANCE */
+         CASE WHEN AMTCOINS2 = 0 THEN 0
+         ELSE TRUNC((AMTCOINS2/S.TOT_REX),4)
+         END AS PCT_COINS,
+         /* RECORD TYPE */
+         CASE WHEN CLMDISP2 = 0 THEN 0
+         ELSE TRUNC((CLMDISP2/S.TOT_REX),4)
+         END AS PCT_CLMDISP,
+         /* CLAIM NUMBER */
+         CASE WHEN CLMNUM2 = 0 THEN 0
+         ELSE TRUNC((CLMNUM2/S.TOT_REX),4)
+         END AS PCT_CLMNUM,
+         /* CLAIM SUFFIX */
+         CASE WHEN CLMSUF2 = 0 THEN 0
+         ELSE TRUNC((CLMSUF2/S.TOT_REX),4)
+         END AS PCT_CLMSUF,
+         /* MOTHER-CHILD CLAIM ID */
+         CASE WHEN NUMLOGCLM2 = 0 THEN 0
+         ELSE TRUNC((NUMLOGCLM2/S.TOT_REX),4)
+         END AS PCT_NUMLOGCLM
+         FROM MCO_MBH_FRPDOS_&MONYY. I
+         INNER JOIN MCO_MBH_TPDOS_&MONYY. S ON I.CDE_ENC_MCO = S.CDE_ENC_MCO AND I.DOS_YRMONTH=S.DOS_YRMONTH AND I.ACO = S.ACO
+         order by cde_enc_mco,dos_yrmonth,aco
+         ) BY ORACLE; DISCONNECT FROM ORACLE; QUIT; 

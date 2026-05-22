@@ -1,0 +1,384 @@
+NOTE: Copyright (c) 2002-2012 by SAS Institute Inc., Cary, NC, USA.
+NOTE: SAS (r) Proprietary Software 9.4 (TS1M3)
+      Licensed to MA EXECUTIVE OFFICE OF HEALTH & HUMAN SERVICES, Site 70184071.
+NOTE: This session is executing on the X64_8PRO  platform.
+
+
+
+NOTE: Updated analytical products:
+
+      SAS/STAT 14.1
+      SAS/ETS 14.1
+
+NOTE: Additional host information:
+
+ X64_8PRO WIN 6.2.9200  Workstation
+
+NOTE: SAS initialization used:
+      real time           3.04 seconds
+      cpu time            1.82 seconds
+
+1    ****************************************************************************************
+2    PROGRAM:    STEP3 GENERATE REPORT.SAS
+3    RE:         OUTPUTS EXCEL SPREADSHEET  MCO/MBH MEASURES
+4                USER: UPDATE %LET MACRO VARIABLES
+5                      MAKE SURE 'REPORTS' SUBFOLDER HAS BEEN CREATED FOR OUTPUT
+6    LOCATION:   \\ehs-clu-bos-001\W\APPLICATION ANALYSIS\MCO AND MBHP EVALUATION SCORECARD
+7    PROGRAMMER: NT
+8    DATE:       4.2018
+9    UPDATE:     7.16.2018 NT: Update report: Add additional column 'ACO'. Data will be
+10               populated post 3.2018
+11   NOTE:       GENERATES EXCEL SPREADSHEET.
+12               NEED TO MANUALLY FORMAT XLS (CALIBRI 11, $1:$1 ROWS TO REPEAT)
+13               TITLE:  MCO/MBHP ENCOUNTER DATA SCORECARD:
+14                       DOS MON YYYY THRU MON YYYY,HIGHLIGHT FAILS IN YELLOW)
+15   TO DO:      Before running this code USER needs to:
+16               (1)update STRTDT, ENDDT, TF macro variable values and
+17               (2)update query month 'value' and
+18               (3)create the subfolder: 'REPORTS' off of 'TF' (jun2018_sep2018 folder)
+19                  so the excel spreadsheet can be output there
+20   *****************************************************************************************;
+21   options compress=binary;
+22   options ps=50 ls=80 nodate;
+23   *options dkricond=nowarning dkrocond=nowarning ; /*to surpress warnings*/
+24
+25   libname nw1 oracle path=dwp1rac schema=tibbettsn dbprompt=yes defer=no
+25 ! user=tibbettsn;
+NOTE: Libref NW1 was successfully assigned as follows:
+      Engine:        ORACLE
+      Physical Name: dwp1rac
+26
+27   proc sql;
+28   connect to oracle (path=dwp1rac dbprompt=NO defer=NO user=tibbettsn
+28 ! password=XXXXXXXXXXX);
+29
+30   *TO BE UPDATED;
+31   %LET STRTDT = JUN 2019;
+32   %LET ENDDT  = SEP 2019;
+33   %LET TF = JUN2019_SEP2019;
+34
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           0.20 seconds
+      cpu time            0.01 seconds
+
+
+35   proc sort data=nw1.mco_mbh_ptpdos_&TF. out=mco_mbh_ptpdos_&TF.;
+36   by cde_enc_mco dos_yrmonth aco;
+37   run;
+
+NOTE: Sorting was performed by the data source.
+NOTE: There were 80 observations read from the data set
+      NW1.MCO_MBH_PTPDOS_JUN2019_SEP2019.
+NOTE: The data set WORK.MCO_MBH_PTPDOS_JUN2019_SEP2019 has 80 observations and
+      82 variables.
+NOTE: Compressing data set WORK.MCO_MBH_PTPDOS_JUN2019_SEP2019 increased size
+      by 100.00 percent.
+      Compressed is 2 pages; un-compressed would require 1 pages.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.33 seconds
+      cpu time            0.01 seconds
+
+
+38
+39   proc transpose data=mco_mbh_ptpdos_&TF. /*(where=(cde_enc_mco='BMC'))*/
+40                  out=mco_mbh_ptpdos_&TF._t (drop=TOT_INPAT TOT_PHARM
+40 ! TOT_OUTPT TOT_OUTPTQ2 TOT_DENT TOT_DENTQ2 TOT_MED
+41                         TOT_MEDQ2 TOT_NON_PHRM_DENTQ2 TOT_PHARM_SCRIPT
+41 ! TOT_INPT_LTC TOT_INPT_OUTPT_LTC
+42                         TOT_INP_OP_LTC_M_EXCQ2 TOT_NON_PHRM_DENT
+42 ! TOT_INPAT_FILTER1 TOT_INPAT_FILTER2
+43                         TOT_MOD_DME TOT_MOD_LABXRAY TOT_MOD_SURGERYM
+43 ! TOT_INOUTLTC_NOART TOT_INPT_OUTPT
+44                         TOT_PHARMSCRIPT_NOTCOMP TOT_NONPHARM TOT_RECORDS
+44 ! _label_ rename=(_name_=measure col1=actual));
+45   var pct_id_medicaid -- pct_numlogclm;
+46   by cde_enc_mco dos_yrmonth aco;
+47   run;
+
+WARNING: The variable TOT_INPAT in the DROP, KEEP, or RENAME list has never
+         been referenced.
+WARNING: The variable TOT_PHARM in the DROP, KEEP, or RENAME list has never
+         been referenced.
+WARNING: The variable TOT_OUTPT in the DROP, KEEP, or RENAME list has never
+         been referenced.
+WARNING: The variable TOT_OUTPTQ2 in the DROP, KEEP, or RENAME list has never
+         been referenced.
+WARNING: The variable TOT_DENT in the DROP, KEEP, or RENAME list has never been
+         referenced.
+WARNING: The variable TOT_DENTQ2 in the DROP, KEEP, or RENAME list has never
+         been referenced.
+WARNING: The variable TOT_MED in the DROP, KEEP, or RENAME list has never been
+         referenced.
+WARNING: The variable TOT_MEDQ2 in the DROP, KEEP, or RENAME list has never
+         been referenced.
+WARNING: The variable TOT_NON_PHRM_DENTQ2 in the DROP, KEEP, or RENAME list has
+         never been referenced.
+WARNING: The variable TOT_PHARM_SCRIPT in the DROP, KEEP, or RENAME list has
+         never been referenced.
+WARNING: The variable TOT_INPT_LTC in the DROP, KEEP, or RENAME list has never
+         been referenced.
+WARNING: The variable TOT_INPT_OUTPT_LTC in the DROP, KEEP, or RENAME list has
+         never been referenced.
+WARNING: The variable TOT_INP_OP_LTC_M_EXCQ2 in the DROP, KEEP, or RENAME list
+         has never been referenced.
+WARNING: The variable TOT_NON_PHRM_DENT in the DROP, KEEP, or RENAME list has
+         never been referenced.
+WARNING: The variable TOT_INPAT_FILTER1 in the DROP, KEEP, or RENAME list has
+         never been referenced.
+WARNING: The variable TOT_INPAT_FILTER2 in the DROP, KEEP, or RENAME list has
+         never been referenced.
+WARNING: The variable TOT_MOD_DME in the DROP, KEEP, or RENAME list has never
+         been referenced.
+WARNING: The variable TOT_MOD_LABXRAY in the DROP, KEEP, or RENAME list has
+         never been referenced.
+WARNING: The variable TOT_MOD_SURGERYM in the DROP, KEEP, or RENAME list has
+         never been referenced.
+WARNING: The variable TOT_INOUTLTC_NOART in the DROP, KEEP, or RENAME list has
+         never been referenced.
+WARNING: The variable TOT_INPT_OUTPT in the DROP, KEEP, or RENAME list has
+         never been referenced.
+WARNING: The variable TOT_PHARMSCRIPT_NOTCOMP in the DROP, KEEP, or RENAME list
+         has never been referenced.
+WARNING: The variable TOT_NONPHARM in the DROP, KEEP, or RENAME list has never
+         been referenced.
+WARNING: The variable TOT_RECORDS in the DROP, KEEP, or RENAME list has never
+         been referenced.
+NOTE: There were 80 observations read from the data set
+      WORK.MCO_MBH_PTPDOS_JUN2019_SEP2019.
+NOTE: The data set WORK.MCO_MBH_PTPDOS_JUN2019_SEP2019_T has 4400 observations
+      and 5 variables.
+NOTE: Compressing data set WORK.MCO_MBH_PTPDOS_JUN2019_SEP2019_T increased size
+      by 50.00 percent.
+      Compressed is 6 pages; un-compressed would require 4 pages.
+NOTE: PROCEDURE TRANSPOSE used (Total process time):
+      real time           0.09 seconds
+      cpu time            0.07 seconds
+
+
+48
+49   proc sql;
+50   create table report_step1 as
+51   select
+52   '2020-02' as query_month, /*UPDATE*/
+53   dos_yrmonth as month_service,
+54   measure,
+55   case when measure ='PCT_ID_MEDICAID' or measure ='PCT_DOS_FROM' or measure
+55 ! ='PCT_DOS_THRU' or
+56             measure ='PCT_SERV_PROV_ID' or measure ='PCT_SERV_PROV_ID_TYP' or
+56 !  measure ='PCT_SERV_PROV_TYP' or
+57             measure ='PCT_SERV_PROV_SPEC' or measure ='PCT_BILL_PROV_ID' or
+57 ! measure ='PCT_BILL_PROV_ID_TYP' or
+58             measure='PCT_SVC_CAT' or measure='PCT_CLAIMCAT' or
+59             measure='PCT_RECIND' or measure='PCT_AMTBILL' or
+59 ! measure='PCT_AMTALLOW' or measure='PCT_AMTPAY' or
+60             measure='PCT_PAID_DT' or measure='PCT_SERV_ID_LOC' or
+60 ! measure='PCT_BILL_ID_LOC' or measure='PCT_TPL' or
+61             measure='PCT_COPAY' or measure='PCT_COINS' or
+61 ! measure='PCT_CLMDISP' or measure='PCT_CLMNUM' or
+62             measure='PCT_CLMSUF' or measure='PCT_NUMLOGCLM' or
+62 ! measure='PCT_ACO'
+63        then 'All Claim Types'
+64
+65        when measure='PCT_QTY_UNIT_BILL' then 'Non Pharmacy'
+66
+67        when measure='PCT_PRESCRIBE_PROV_ID' or measure='PCT_PRES_PROV_ID_TYP'
+67 !  or measure='PCT_SCRIPT_WRITTEN' or
+68             measure='PCT_REFILL' or measure='PCT_DISPENSE' or
+68 ! measure='PCT_SCRIPT' or measure='PCT_FEE' or
+69             measure='PCT_PRS_ID_LOC'
+70        then 'Pharmacy (prescriptions only, not OTC)'
+71
+72        when measure='PCT_NDC' then 'Pharmacy (prescriptions only, not OTC and
+72 !  not compounded)'
+73
+74        when measure='PCT_PRIMARY_DIAG' or measure='PCT_ICD_VERSION' or
+74 ! measure='PCT_POS_CODE' or
+75             measure='PCT_POS_TYPE' or measure='PCT_SERV_NPI' or
+75 ! measure='PCT_BILL_NPI'
+76        then 'Inpatient, Outpatient, Professional, and LTC'
+77
+78        when measure='PCT_PROC_CODE_O_D' then 'Outpatient'
+79
+80        when measure='PCT_PROC_CODE_M' or measure='PCT_PROC_MOD_LABXRAY' or
+80 ! measure='PCT_PROC_MOD_SURGERYM'
+81        then 'Professional'
+82
+83        when measure='PCT_PROC_MOD_DME' then 'Professional
+83 ! (modifier=RR,NU,UE)'
+84
+85        when measure='PCT_ADMITDT' or measure='PCT_ADMIT_TYPE' or
+85 ! measure='PCT_ADMIT_SOURCE' then 'Inpatient and LTC'
+86
+87        when measure='PCT_DISCHARGEDT' or measure='PCT_DIAG_ADMIT' then
+87 ! 'Inpatient'
+88
+89        when measure='PCT_PATIENT_STATUS' then 'Inpatient and Outpatient'
+90
+91        when measure='PCT_REV_CODE' then 'Inpatient, Outpatient, and LTC'
+92   end as claimtype,
+93
+94   cde_enc_mco as plan,
+95   aco,
+96   ROUND((actual)*100,.01) as actual /*converting rate to a percent and
+96 ! rounding 2 decimal places*/
+97   from mco_mbh_ptpdos_&TF._t;
+NOTE: A CASE expression has no ELSE clause. Cases not accounted for by the WHEN
+      clauses will result in a missing value for the CASE expression.
+NOTE: Compressing data set WORK.REPORT_STEP1 decreased size by 11.11 percent.
+      Compressed is 8 pages; un-compressed would require 9 pages.
+NOTE: Table WORK.REPORT_STEP1 created, with 4400 rows and 7 columns.
+
+98   run;
+NOTE: PROC SQL statements are executed immediately; The RUN statement has no
+      effect.
+99
+100  *proc print data = report_step1;
+101  *run;
+102
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           0.08 seconds
+      cpu time            0.07 seconds
+
+
+103  proc sql;
+104  create table report_step2 as
+105  select query_month, month_service, measure, claimtype, plan, aco,
+105! claim_count, actual
+106  from
+107  (
+108  select rpt1.*,
+109  case when measure ='PCT_ID_MEDICAID' or measure ='PCT_DOS_FROM' or measure
+109! ='PCT_DOS_THRU' or
+110            measure ='PCT_SERV_PROV_ID' or measure ='PCT_SERV_PROV_ID_TYP' or
+110!  measure ='PCT_SERV_PROV_TYP' or
+111            measure ='PCT_SERV_PROV_SPEC' or measure ='PCT_BILL_PROV_ID' or
+111! measure ='PCT_BILL_PROV_ID_TYP' or
+112            measure='PCT_SVC_CAT' or measure='PCT_CLAIMCAT' or
+113            measure='PCT_RECIND' or measure='PCT_AMTBILL' or
+113! measure='PCT_AMTALLOW' or measure='PCT_AMTPAY' or
+114            measure='PCT_PAID_DT' or measure='PCT_SERV_ID_LOC' or
+114! measure='PCT_BILL_ID_LOC' or measure='PCT_TPL' or
+115            measure='PCT_COPAY' or measure='PCT_COINS' or
+115! measure='PCT_CLMDISP' or measure='PCT_CLMNUM' or
+116            measure='PCT_CLMSUF' or measure='PCT_NUMLOGCLM' or
+116! measure='PCT_ACO'
+117            then TOT_RECORDS
+118  when measure='PCT_PRESCRIBE_PROV_ID' or measure='PCT_PRES_PROV_ID_TYP' or
+118! measure='PCT_SCRIPT_WRITTEN' or
+119       measure='PCT_REFILL' or measure='PCT_DISPENSE' or measure='PCT_SCRIPT'
+119!  or measure='PCT_FEE' or
+120       measure='PCT_PRS_ID_LOC' then TOT_PHARM_SCRIPT
+121  when measure='PCT_NDC' then TOT_PHARMSCRIPT_NOTCOMP
+122  when measure='PCT_QTY_UNIT_BILL' then TOT_NONPHARM
+123  when measure='PCT_PRIMARY_DIAG' or measure='PCT_SERV_NPI' or
+123! measure='PCT_BILL_NPI' then TOT_NON_PHRM_DENTQ2
+124  when measure='PCT_ADMITDT' or measure='PCT_ADMIT_TYPE' or
+124! measure='PCT_ADMIT_SOURCE' then TOT_INPT_LTC
+125  when measure='PCT_PRIMARY_DIAG' then TOT_NON_PHRM_DENTQ2
+126  when measure='PCT_ICD_VERSION' then TOT_INP_OP_LTC_M_EXCQ2
+127  when measure='PCT_PROC_CODE_M' then TOT_MEDQ2
+128  when measure='PCT_PROC_CODE_O_D' then TOT_OUTPTQ2
+129  when measure='PCT_PROC_MOD_DME' then TOT_MOD_DME
+130  when measure='PCT_PROC_MOD_LABXRAY' then TOT_MOD_LABXRAY
+131  when measure='PCT_PROC_MOD_SURGERYM' then TOT_MOD_SURGERYM
+132  when measure='PCT_POS_CODE' or measure='PCT_POS_TYPE' then
+132! TOT_NON_PHRM_DENT
+133  when measure='PCT_REV_CODE' then TOT_INOUTLTC_NOART
+134  when measure='PCT_PATIENT_STATUS' then TOT_INPT_OUTPT
+135  when measure='PCT_DIAG_ADMIT' then TOT_INPAT_FILTER2
+136  when measure='PCT_DISCHARGEDT' then TOT_INPAT_FILTER1
+137  end as claim_count
+138  from report_step1 rpt1
+139  inner join (select cde_enc_mco, dos_yrmonth, aco, TOT_INPAT, TOT_PHARM,
+139! TOT_OUTPT, TOT_OUTPTQ2, TOT_DENT, TOT_DENTQ2,
+140                     TOT_MED, TOT_MEDQ2, TOT_NON_PHRM_DENTQ2,
+140! TOT_PHARM_SCRIPT, TOT_INPT_LTC,
+141                     TOT_INPT_OUTPT_LTC, TOT_INP_OP_LTC_M_EXCQ2,
+141! TOT_NON_PHRM_DENT,
+142                     TOT_INPAT_FILTER1, TOT_INPAT_FILTER2, TOT_MOD_DME,
+142! TOT_MOD_LABXRAY,
+143                     TOT_MOD_SURGERYM, TOT_INOUTLTC_NOART, TOT_INPT_OUTPT,
+143! TOT_PHARMSCRIPT_NOTCOMP,TOT_NONPHARM,
+144                     TOT_RECORDS
+145              from mco_mbh_ptpdos_&TF.
+146              /*where cde_enc_mco='BMC'*/)rpt2
+147  on rpt1.plan=rpt2.cde_enc_mco and rpt1.month_service=rpt2.dos_yrmonth and
+147! rpt1.aco=rpt2.aco);
+NOTE: A CASE expression has no ELSE clause. Cases not accounted for by the WHEN
+      clauses will result in a missing value for the CASE expression.
+NOTE: Compressing data set WORK.REPORT_STEP2 decreased size by 0.00 percent.
+      Compressed is 9 pages; un-compressed would require 9 pages.
+NOTE: Table WORK.REPORT_STEP2 created, with 4400 rows and 8 columns.
+
+148  run;
+NOTE: PROC SQL statements are executed immediately; The RUN statement has no
+      effect.
+149
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           0.08 seconds
+      cpu time            0.07 seconds
+
+
+150  proc sort data=report_step2 out=mco_mbh_report_&tf.;
+151  by query_month plan month_service aco measure;
+152  run;
+
+NOTE: There were 4400 observations read from the data set WORK.REPORT_STEP2.
+NOTE: The data set WORK.MCO_MBH_REPORT_JUN2019_SEP2019 has 4400 observations
+      and 8 variables.
+NOTE: Compressing data set WORK.MCO_MBH_REPORT_JUN2019_SEP2019 decreased size
+      by 0.00 percent.
+      Compressed is 9 pages; un-compressed would require 9 pages.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.07 seconds
+      cpu time            0.03 seconds
+
+
+153
+154  proc print data=mco_mbh_report_&tf.;
+NOTE: Writing HTML Body file: sashtml.htm
+155  var query_month month_service measure claimtype plan aco claim_count actual
+155! ;
+156  run;
+
+NOTE: There were 4400 observations read from the data set
+      WORK.MCO_MBH_REPORT_JUN2019_SEP2019.
+NOTE: PROCEDURE PRINT used (Total process time):
+      real time           2.66 seconds
+      cpu time            1.76 seconds
+
+
+157
+158  proc export data=mco_mbh_report_&tf.
+159              (KEEP =query_month month_service measure claimtype plan aco
+159! claim_count actual where=(measure <> 'PCT_PROC_CODE'))
+160  outfile="W:\APPLICATION ANALYSIS\MCO and MBHP Evaluation
+160! Scorecard\&TF.\REPORTS\MCO_MBH_SCORECARD_&TF..XLS"
+NOTE: The "<>" operator is interpreted as "not equals".
+161                replace;
+162  sheet="&SYSDATE";
+163  run;
+
+NOTE: The "<>" operator is interpreted as "not equals".
+WARNING: The target file may contain unmatched range name and sheet name.
+WARNING: The target file may contain unmatched range name and sheet name.
+NOTE: "28FEB20" range/sheet was successfully created.
+NOTE: PROCEDURE EXPORT used (Total process time):
+      real time           1.70 seconds
+      cpu time            0.50 seconds
+
+
+164
+165
+166  proc sql;
+167  create table nw1.mco_mbh_report_&tf. as
+168  select query_month, month_service, measure, claimtype, plan, aco,
+168! claim_count, actual
+169  from mco_mbh_report_&tf.;
+NOTE: SAS variable labels, formats, and lengths are not written to DBMS tables.
+NOTE: Table NW1.MCO_MBH_REPORT_JUN2019_SEP2019 created, with 4400 rows and 8
+      columns.
+
+170  run;
+NOTE: PROC SQL statements are executed immediately; The RUN statement has no
+      effect.
