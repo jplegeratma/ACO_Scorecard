@@ -1,0 +1,27 @@
+export ORACLE_HOME=/u01/oracle/product/11.2.0
+
+# set up the search paths:
+export PATH=$PATH:/bin:$ORACLE_HOME/bin:$PATH:/u01/oracle/product/11.2.0/bin:/informatica/dev/102/PowerCenter/server/bin:/informatica/dev/102/PowerCenter/ODBC7.1/lib:/informatica/dev/102/PowerCenter/server/bin:/informatica/dev/102/PowerExchange
+
+
+export INFA_HOME=/informatica/dev/102/PowerCenter
+
+export ODBCINI=/informatica/dev/102/PowerCenter/ODBC7.1/odbc.ini
+export ODBCHOME=/informatica/dev/102/PowerCenter/ODBC7.1
+export INFM_HOME=/informatica/dev/102
+export PM_HOME=/informatica/dev/102/PowerCenter/server/bin
+
+export PWX_HOME=/informatica/dev/102/PowerExchange
+export INFM_ROOT=/informatica/dev/102/PowerCenter/server/infa_shared
+
+# Set up the SHLIB_PATH to include Oracle, Informatica and odbc
+if [ -z "$LD_LIBRARY_PATH" ]
+then
+export LD_LIBRARY_PATH=/lib:/informatica/dev/102/PowerCenter/ODBC7.1/lib:/informatica/dev/102/PowerCenter/server/bin:/informatica/dev/102/PowerExchange
+else
+export LD_LIBRARY_PATH=/lib:/informatica/dev/102/PowerCenter/ODBC7.1/lib:/informatica/dev/102/PowerCenter/server/bin:/informatica/dev/102/PowerExchange:$LD_LIBRARY_PATH
+fi
+
+export INFA_DOMAINS_FILE=/informatica/dev/102/PowerCenter/domains.infa
+export PM_ROOT=/informatica/dev/102/PowerCenter/server/infa_shared/BWParam
+export PDMBINHOME=/home/pdm_dev/pdms
