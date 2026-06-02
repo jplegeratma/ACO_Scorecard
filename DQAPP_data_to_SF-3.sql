@@ -84,6 +84,19 @@ Insert into MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_BMC_RECP
    (ID, RECIPIENT)
  Values
    (15, 'jp.leger@mass.gov');
+
+-- Added 6/2/26 per email from WELLSENSE
+
+Insert into MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_BMC_RECP
+   (ID, RECIPIENT)
+ Values
+   (17, 'james.marsh@wellsense.org');
+
+Insert into MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_BMC_RECP
+   (ID, RECIPIENT)
+ Values
+   (18, 'Michael.donnelly@wellsense.org');
+
 --Insert into MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_BMC_RECP
 --   (ID, RECIPIENT)
 -- Values
