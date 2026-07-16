@@ -192,3 +192,219 @@ Deploy files from Dev for Encounter Scorecards	N	RunSubProcess	Data Integration 
 Manual deploy table	N	Comment	Copies a single table from one environment to another.						
 Manual deploy table	N	CopyTable-Force	DWQ1RAC	MHTEAM.DWDQ	TABLE_NAME	DWP1RAC	DQAPP	TABLE_NAME	
 Top line for command editing			14749						
+
+-----------
+7/16/2026 edits in Dev to be copied over to Prod
+
+			Top line for command editing			14591										
+	Generate encounter data scorecard manual	N	Comment											
+	Generate encounter data scorecard manual	N	SetProcessParameter	MCO	BMC									
+	Generate encounter data scorecard manual	N	SetProcessParameter	ACO	BMC-BACO									
+	Generate encounter data scorecard manual	N	SetProcessParameter	RunDate	27-FEB-2020									
+	Generate encounter data scorecard manual	N	SetProcessParameter	DATE_STR	FEB_2020									
+	Generate encounter data scorecard manual	N	SetProcessParameter	SHEET_NAME	BMC-BACO									
+	Generate encounter data scorecard manual	N	RunSubProcess	Encounter Scorecards	Generate encounter data scorecard	[MCO], [ACO], [RunDate], [DATE_STR], [SHEET_NAME]								
+	Generate encounter data scorecard main	N	Comment	Generate scorecard reports in three steps										
+	Generate encounter data scorecard main	N	SetProcessParameter	OutputFolder	[ExcelDataFolder]									
+	XGenerate encounter data scorecard main	N	SetProcessParameter	ProdOrTest	PROD									
+	Generate encounter data scorecard main	N	SetProcessParameter	ProdOrTest	TEST									
+	Generate encounter data scorecard main	N	SendEmailOnFailure	[TnsIdentifier]	MHDWPROD.DQAPP	INF_B_SC_MCO_SCORECARD_EMAIL_ALERTS								
+	Generate encounter data scorecard main	N	Comment	Step 1 loop over the ACOs generating reports										
+	Generate encounter data scorecard main	N	ForEachRecordOfTable	[TnsIdentifier]	MHTEAM.DWDQ	INF_SC_STEP3_16_ACO_RUNDATE	PLAN,ACO,RUN_DATE,DATE_STR,SHEET_NAME		MCO,ACO,RunDate,DATE_STR,SHEET_NAME					
+	Generate encounter data scorecard main	N	RunSubProcess	Encounter Scorecards	Generate encounter data scorecard	[MCO],[ACO],[RunDate],[DATE_STR],[SHEET_NAME],[ProdOrTest]								
+	Generate encounter data scorecard main	N	NextRecordOfTable	INF_SC_STEP3_16_ACO_RUNDATE										
+	Generate encounter data scorecard main	N	Comment	Step 2 loop over MCO to move zips to SFTP and send emails										
+	Generate encounter data scorecard main	N	ForEachRecordOfTable	[TnsIdentifier]	MHTEAM.DWDQ	INF_SC_STEP3_19_PLAN_EMAIL_BODY	RUN_DATE,DATE_STR,PLAN,EMAIL_BODY,EMAIL_RECIPIENT_TABLE,SFTP_FOLDER	where DEPLOY_STAGE='[ProdOrTest]'	RunDate,DATE_STR,MCO,EmailBody,EmailRecipentTable,SFTPFolder					
+	Generate encounter data scorecard main	N	RunSubProcess	Encounter Scorecards	Generate encounter data scorecard external send	[RunDate],[DATE_STR],[MCO],"[EmailBody]",[EmailRecipentTable],[SFTPFolder],[ProdOrTest]								
+	Generate encounter data scorecard main	N	NextRecordOfTable	INF_SC_STEP3_19_PLAN_EMAIL_BODY										
+	Generate encounter data scorecard main	N	Comment	Step 3 run the summary report and send to internal list										
+	Generate encounter data scorecard main	N	ForEachRecordOfTable	[TnsIdentifier]	MHTEAM.DWDQ	INF_SC_STEP3_20_INTERNAL_EMAIL_BODY	RUN_DATE,DATE_STR,EMAIL_BODY		RunDate,DATE_STR,EmailBody					
+	Generate encounter data scorecard main	N	RunSubProcess	Encounter Scorecards	Generate encounter data scorecard internal send	[RunDate],[DATE_STR],"[EmailBody]",[ProdOrTest]								
+	Generate encounter data scorecard main	N	NextRecordOfTable	INF_SC_STEP3_20_INTERNAL_EMAIL_BODY										
+	Generate encounter data scorecard	N	Comment	Create the spreadsheets and zips										
+	Generate encounter data scorecard	N	SubProcess	PLAN,ACO,RUN_DATE,DATE_STR,SHEET_NAME,ProdOrTest										
+	Generate encounter data scorecard	N	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_STEP3_1_BENCHMARK_DATA	ID, BENCHMARK, BENCHMARK_NAME,FIELD_ID,CLAIM_TYPE,DUM1,BENCHMARK_THRESHOLD,DUM2,A_CLM, A_ACT_4_S,A_ACT_3_S, A_ACT_2_S, A_ACT_1_S,DUM3,B_CLM, B_ACT_5_S,B_ACT_4_S, B_ACT_3_S,B_ACT_2_S,DUM4,C_CLM, C_ACT_6_S,C_ACT_5_S, C_ACT_4_S, C_ACT_3_S,DUM5,D_CLM, D_ACT_7_S,D_ACT_6_S, D_ACT_5_S, D_ACT_4_S	where RUN_DATE = to_date('[RunDate]', 'DD-MON-YYYY') and ACO = '[ACO]'	order by ID	BENCHMARK_DATA				
+	Generate encounter data scorecard	N	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_STEP3_8_CLM_ACT_HDRS		where RUN_DATE = to_date('[RunDate]', 'DD-MON-YYYY')		DATA1_CLM_ACT_HDRS				
+	Generate encounter data scorecard	N	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_STEP3_2	PLAN,ACO	where RUN_DATE = to_date('[RunDate]', 'DD-MON-YYYY') and ACO = '[ACO]'		DATA2_PLAN_ACO				
+	Generate encounter data scorecard	N	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_STEP3_7	A_ACT_4_MISS, A_ACT_3_MISS, A_ACT_2_MISS,A_ACT_1_MISS, B_ACT_5_MISS, B_ACT_4_MISS, B_ACT_3_MISS, B_ACT_2_MISS,C_ACT_6_MISS, C_ACT_5_MISS, C_ACT_4_MISS, C_ACT_3_MISS, D_ACT_7_MISS,D_ACT_6_MISS, D_ACT_5_MISS, D_ACT_4_MISS	where RUN_DATE = to_date('[RunDate]', 'DD-MON-YYYY') and ACO = '[ACO]'		DATA3_MISS_DATA				
+	Generate encounter data scorecard	N	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_STEP3_9_DATE_STRINGS	IA,IB,IC,ID,IALL	where RUN_DATE = to_date('[RunDate]', 'DD-MON-YYYY')		DATA4_DATE_STRINGS				
+	Generate encounter data scorecard	Y	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_STEP3_10_TIMELINESS	ID,FILE_NAME,ZIP_FILE_CREATED,METADATA_DATE_CREATED,DATE_FILE_PROCESSED,MANUAL_OVERRIDE,AMENDMENT	where RUN_DATE = to_date('[RunDate]', 'DD-MON-YYYY') and MCO = '[MCO]'	order by ID	TIMELINESS				
+	Generate encounter data scorecard	Y	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_STEP3_12_TIMELINESS_COUNTS	RUN_DATE,MCO,M6,Z6,M5,Z5,M4,Z4,M3,Z3,M2,Z2,M1,Z1	where RUN_DATE = to_date('[RunDate]', 'DD-MON-YYYY') and MCO = '[MCO]'		DATA5_TIMELINESS_COUNTS				
+	Generate encounter data scorecard	N	SetExcelExportData-ZeroRowsOk	[TnsIdentifier]	[Schema]	INF_SC_STEP3_13_ACO_NAMES	ACO,MCO_NAME,CONTACT_MGR,PERFORMANCE_MGR	where ACO = '[ACO]'		DATA6_ACO_NAMES				
+	Generate encounter data scorecard	N	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_STEP3_14_BENCHMARK_COUNT	BENCH_CNT,BENCH_STR			DATA7_BENCHMARK_COUNT				
+	Generate encounter data scorecard	Y	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_STEP3_15_TIMELINESS_STRINGS	RUN_DATE,ACO,MA,MB,MC,MD,SA,SB,SC,SD	where RUN_DATE = to_date('[RunDate]', 'DD-MON-YYYY') and ACO = '[ACO]'		DATA8_TIMELINESS_STRINGS				
+	Generate encounter data scorecard	Y	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_STEP3_17_ACO_FAILS	ID,BENCHMARK,ENC_CLAIM_NO,ENC_CLAIM_SUFFIX,CDE_CLM_DISPOSITION,DOS_FROM,CLAIM_TYPE,ETL_CHECK,DESC1,VALUE1,DESC2,VALUE2,DESC3,VALUE3,DESC4,VALUE4,DESC5,VALUE5	where RUN_DATE = to_date('[RunDate]', 'DD-MON-YYYY') and CDE_ENC_ACO = '[ACO]'	order by ID,ENC_CLAIM_NO,ENC_CLAIM_SUFFIX	FAILS_DATA				
+	Generate encounter data scorecard	N	ExportDataToExcel	[OutputFolder]	MCO-ACPP Encounter Data Scorecard_ACO_YYYY-MM-DD.xlsx	[OutputFolder]								
+	Generate encounter data scorecard	N	SetVariablesWithSql	[TnsIdentifier]	[SqlFolder][Slash]get_date.sql	ProducedDate								
+	Generate encounter data scorecard	N	RunSubProcess	Data Integration Operations	Rename file with overwrite	[OutputFolder], MCO-ACPP Encounter Data Scorecard_ACO_[ProducedDate].xlsx, MCO-ACPP Encounter Data Scorecard_[SHEET_NAME]_[DATE_STR].xlsx								
+	Generate encounter data scorecard	N	Comment	Add the spreadsheet to the MCO zip										
+	Generate encounter data scorecard	N	RunShellCommand	[ZipExecutableFolder][Slash]7z.exe	a	[OutputFolder][Slash]MCO-ACPP_Encounter_Data_Scorecard_[MCO]_[DATE_STR].zip	[OutputFolder][Slash]MCO-ACPP Encounter Data Scorecard_[SHEET_NAME]_[DATE_STR].xlsx							
+	Generate encounter data scorecard	N	Comment	Add the spreadsheet to the Summary zip										
+	Generate encounter data scorecard	N	RunShellCommand	[ZipExecutableFolder][Slash]7z.exe	a	[OutputFolder][Slash][DATE_STR]_ACO.zip	[OutputFolder][Slash]MCO-ACPP Encounter Data Scorecard_[SHEET_NAME]_[DATE_STR].xlsx							
+	Generate encounter data scorecard	N	Comment	Delete the un-zipped spreadsheet										
+	Generate encounter data scorecard	N	RunSubProcess	Data Integration Operations	Delete file	[OutputFolder], MCO-ACPP Encounter Data Scorecard_[SHEET_NAME]_[DATE_STR].xlsx								
+	Generate encounter data scorecard external send	N	Comment	Move the zips to SFTP and generate the plan email										
+	Generate encounter data scorecard external send	N	SubProcess	RunDate,DATE_STR,MCO,EmailBody,EmailRecipentTable,SFTPFolder,ProdOrTest										
+	Generate encounter data scorecard external send	N	Comment	Move the zip to SFTP - move to local dir for now										
+	XGenerate encounter data scorecard external send	N	RunSubProcess	Data Integration Operations	Copy new files from local path	[OutputFolder],MCO-ACPP_Encounter_Data_Scorecard_[MCO]_[DATE_STR].zip,[ExcelDataFolder][Slash]copytest								
+	Generate encounter data scorecard external send	N	SFTPCopyFile	Y	[OutputFolder][Slash]MCO-ACPP_Encounter_Data_Scorecard_[MCO]_[DATE_STR].zip	[SFTPFolder]/MCO-ACPP_Encounter_Data_Scorecard_[MCO]_[DATE_STR].zip								
+	Generate encounter data scorecard external send	N	Comment	Create Plan Summary report										
+	Generate encounter data scorecard external send	N	SetVariable	EmailSubject	Encounter Scorecards Posted for [DATE_STR]									
+	Generate encounter data scorecard external send	N	RunSubProcess	Data Integration Operations	Send email	MHDWPROD.DQAPP,[EmailRecipentTable],RECIPIENT,[EmailSubject],"[EmailBody]"								
+	Generate encounter data scorecard internal send	N	Comment	Run and send the Summary Report										
+	Generate encounter data scorecard internal send	N	Comment	Run the Summary Report										
+	Generate encounter data scorecard internal send	N	SubProcess	RunDate,DATE_STR,EmailBody,ProdOrTest										
+	Generate encounter data scorecard internal send	N	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_STEP3_8_CLM_ACT_HDRS	LAST_SUB_STR	where RUN_DATE = to_date('[RunDate]', 'DD-MON-YYYY')		RUN_DATE_STRING				
+	Generate encounter data scorecard internal send	Y	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_STEP3_18_SUMMARY	RUN_DATE, PLAN, ACO, MISSED_BENCHMARKS, ACTUALS_WITH_ZERO	where RUN_DATE = to_date('[RunDate]', 'DD-MON-YYYY')	order by RUN_DATE, PLAN, ACO	SUMMARY_DATA				
+	Generate encounter data scorecard internal send	Y	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_STEP3_21_DOS_MONTH	DOS_MONTH	where RUN_DATE = to_date('[RunDate]', 'DD-MON-YYYY')		DOS_MONTH				
+	Generate encounter data scorecard internal send	Y	ExportDataToExcel	[OutputFolder]	MCO-ACPP Encounter Data Scorecard Missed Benchmarks_YYYY-MM-DD.xlsx	[OutputFolder]								
+	Generate encounter data scorecard internal send	N	SetVariablesWithSql	[TnsIdentifier]	[SqlFolder][Slash]get_date.sql	ProducedDate								
+	Generate encounter data scorecard internal send	N	RunSubProcess	Data Integration Operations	Rename file with overwrite	[OutputFolder], MCO-ACPP Encounter Data Scorecard Missed Benchmarks_[ProducedDate].xlsx, MCO-ACPP Encounter Data Scorecard Missed Benchmarks_[DATE_STR].xlsx								
+	Generate encounter data scorecard internal send	N	Comment	Compiling the email										
+	Generate encounter data scorecard internal send	N	SetVariable	EmailSubject	[DATE_STR] MCO/ACPP Encounter Data Scorecard Missed Benchmarks									
+	Generate encounter data scorecard internal send	N	SetEmailAttachment	[OutputFolder]	MCO-ACPP Encounter Data Scorecard Missed Benchmarks_[DATE_STR].xlsx									
+	Generate encounter data scorecard internal send	N	SetEmailAttachment	[OutputFolder]	[DATE_STR]_ACO.zip	Y								
+	Generate encounter data scorecard internal send	N	RunSubProcess	Data Integration Operations	Send email	MHDWPROD.DQAPP,INF_B_SC_MCO_SCORECARD_[ProdOrTest]_INTERNAL_RECP,RECIPIENT,[EmailSubject],"[EmailBody]"								
+	Generate SCO spreadsheet main	N	Comment	Create the SCO spreadsheet main										
+	XGenerate SCO spreadsheet main	N	SendEmailOnFailure	[TnsIdentifier]	MHDWPROD.DQAPP	INF_B_SC_MCO_SCORECARD_EMAIL_ALERTS								
+	XGenerate SCO spreadsheet main	N	SetProcessParameter	ProdOrTest	PROD									
+	Generate SCO spreadsheet main	N	SetProcessParameter	ProdOrTest	TEST									
+	Generate SCO spreadsheet main	N	ForEachRecordOfTable	[TnsIdentifier]	MHTEAM.DWDQ	INF_SC_SCO_QUARTER	RUN_DATE,DATE_STR,EMAIL_BODY		RunDate,DATE_STR,EmailBody					
+	Generate SCO spreadsheet main	N	Comment	Run the SCO Providers										
+	Generate SCO spreadsheet main	N	RunSubProcess	Encounter Scorecards	Generate SCO provider spreadsheet	[RunDate],[DATE_STR],"[EmailBody]",[ProdOrTest]								
+	Generate SCO spreadsheet main	N	Comment	Run the SCO Spreadsheet										
+	Generate SCO spreadsheet main	N	RunSubProcess	Encounter Scorecards	Generate SCO spreadsheet	[RunDate],[DATE_STR],"[EmailBody]",[ProdOrTest]								
+	Generate SCO spreadsheet main	N	NextRecordOfTable	INF_SC_SCO_QUARTER										
+	Generate SCO spreadsheet	N	Comment	Create the SCO spreadsheet										
+	Generate SCO spreadsheet	N	SubProcess	RunDate,DATE_STR,EmailBody,ProdOrTest										
+	Generate SCO spreadsheet	N	SetProcessParameter	OutputFolder	[ExcelDataFolder]									
+[object Object]	Generate SCO spreadsheet	N	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_SCO_REPORT	MEASURE,CLAIMTYPE,BENCHMARK,BHP,BHP_DENOM,CCA,CCA_DENOM,NAV,NAV_DENOM,SWH,SWH_DENOM,TFT,TFT_DENOM,UHC,UHC_DENOM,MGS,MGS_DENOM	where RUN_DATE = to_date('[RunDate]', 'DD-MON-YYYY')	order by MEASURE	SCO_DATA				
+	Generate SCO spreadsheet	Y	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_SCO_FAILS	CDE_ENC_MCO,MEASURE,ENC_CLAIM_NO,ENC_CLAIM_SUFFIX,CDE_CLM_DISPOSITION,DOS_FROM,CLAIM_TYPE,ETL_CHECK,DESC1,VALUE1,DESC2,VALUE2,DESC3,VALUE3,DESC4,VALUE4,DESC5,VALUE5,DESC6, VALUE6, DESC7, VALUE7,  DESC8, VALUE8, DESC9, VALUE9, DESC10,  VALUE10, DESC11, VALUE11	where RUN_DATE = to_date('[RunDate]', 'DD-MON-YYYY')	order by CDE_ENC_MCO,MEASURE	FAILS_DATA				
+	Generate SCO spreadsheet	Y	ExportDataToExcel	[OutputFolder]	SCO_REPORT_CARD_YYYY-MM-DD.xlsx	[OutputFolder]								
+	Generate SCO spreadsheet	N	SetVariablesWithSql	[TnsIdentifier]	[SqlFolder][Slash]get_date.sql	ProducedDate								
+	Generate SCO spreadsheet	N	RunSubProcess	Data Integration Operations	Rename file with overwrite	[OutputFolder], SCO_REPORT_CARD_[ProducedDate].xlsx, SCO_REPORT_CARD_[DATE_STR].xlsx								
+	Generate SCO spreadsheet	N	Comment	Compiling the email										
+	Generate SCO spreadsheet	N	SetVariable	EmailSubject	SCO_REPORT_CARD_[DATE_STR]									
+	Generate SCO spreadsheet	N	SetEmailAttachment	[OutputFolder]	Provider_Summary_Evaluation_[DATE_STR].xlsx									
+	Generate SCO spreadsheet	N	SetEmailAttachment	[OutputFolder]	SCO_REPORT_CARD_[DATE_STR].xlsx	Y								
+	Generate SCO spreadsheet	N	RunSubProcess	Data Integration Operations	Send email	MHDWPROD.DQAPP,INF_B_SC_SCO_SCORECARD_[ProdOrTest]_RECP,RECIPIENT,[EmailSubject],"[EmailBody]"								
+	Generate SCO provider main	N	Comment	Create the SCO provider sheet main										
+	Generate SCO provider main	N	SendEmailOnFailure	[TnsIdentifier]	MHDWPROD.DQAPP	INF_B_SC_MCO_SCORECARD_EMAIL_ALERTS								
+	XGenerate SCO provider main	N	SetProcessParameter	ProdOrTest	PROD									
+	Generate SCO provider main	N	SetProcessParameter	ProdOrTest	TEST									
+	Generate SCO provider main	N	ForEachRecordOfTable	[TnsIdentifier]	MHTEAM.DWDQ	INF_SC_SCO_QUARTER	RUN_DATE,DATE_STR,EMAIL_BODY		RunDate,DATE_STR,EmailBody					
+	Generate SCO provider main	N	RunSubProcess	Encounter Scorecards	Generate SCO provider spreadsheet	[RunDate],[DATE_STR],"[EmailBody]",[ProdOrTest]								
+	Generate SCO provider main	N	NextRecordOfTable	INF_SC_SCO_QUARTER										
+	Generate SCO provider spreadsheet	N	Comment	Create the SCO provider spreadsheet										
+	Generate SCO provider spreadsheet	N	SubProcess	RunDate,DATE_STR,EmailBody,ProdOrTest										
+	Generate SCO provider spreadsheet	N	SetProcessParameter	OutputFolder	[ExcelDataFolder]									
+	Generate SCO provider spreadsheet	Y	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_SCO_PROVIDER_STATS	VAL1, VAL2, VAL7	WHERE R1 = to_date('[RunDate]', 'DD-MON-YYYY') AND C1 = 'NAV'		NAV_SUB				
+	Generate SCO provider spreadsheet	Y	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_SCO_PROVIDER_STATS	VAL3, VAL4,  VAL8	WHERE R1 = to_date('[RunDate]', 'DD-MON-YYYY') AND C1 = 'NAV'		NAV_ODS				
+	Generate SCO provider spreadsheet	Y	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_SCO_PROVIDER_STATS	VAL5, VAL6, VAL9	WHERE R1 = to_date('[RunDate]', 'DD-MON-YYYY') AND C1 = 'NAV'		NAV_MATCH				
+	Generate SCO provider spreadsheet	Y	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_SCO_PROVIDER_STATS	VAL16, VAL17, VAL18	WHERE R1 = to_date('[RunDate]', 'DD-MON-YYYY') AND C1 = 'NAV'		NAV_MISSING				
+	Generate SCO provider spreadsheet	Y	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_SCO_PROVIDER_MISS_IDS_NAV	S_PROV_ID, B_PROV_ID, P_PROV_ID	WHERE (S_RUN_DATE = TO_DATE('[RunDate]', 'DD-MON-YYYY') OR B_RUN_DATE = TO_DATE('[RunDate]', 'DD-MON-YYYY') OR P_RUN_DATE = TO_DATE('[RunDate]', 'DD-MON-YYYY')) LIMIT 100		NAV_IDS				
+	Generate SCO provider spreadsheet	Y	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_SCO_PROVIDER_STATS	VAL1, VAL2, VAL7	WHERE R1 = to_date('[RunDate]', 'DD-MON-YYYY') AND C1 = 'CCA'		CCA_SUB				
+	Generate SCO provider spreadsheet	Y	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_SCO_PROVIDER_STATS	VAL3, VAL4,  VAL8	WHERE R1 = to_date('[RunDate]', 'DD-MON-YYYY') AND C1 = 'CCA'		CCA_ODS				
+	Generate SCO provider spreadsheet	Y	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_SCO_PROVIDER_STATS	VAL5, VAL6, VAL9	WHERE R1 = to_date('[RunDate]', 'DD-MON-YYYY') AND C1 = 'CCA'		CCA_MATCH				
+	Generate SCO provider spreadsheet	Y	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_SCO_PROVIDER_STATS	VAL16, VAL17, VAL18	WHERE R1 = to_date('[RunDate]', 'DD-MON-YYYY') AND C1 = 'CCA'		CCA_MISSING				
+	Generate SCO provider spreadsheet	Y	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_SCO_PROVIDER_MISS_IDS_CCA	S_PROV_ID, B_PROV_ID, P_PROV_ID	WHERE (S_RUN_DATE = TO_DATE('[RunDate]', 'DD-MON-YYYY') OR B_RUN_DATE = TO_DATE('[RunDate]', 'DD-MON-YYYY') OR P_RUN_DATE = TO_DATE('[RunDate]', 'DD-MON-YYYY')) LIMIT 100		CCA_IDS				
+	Generate SCO provider spreadsheet	Y	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_SCO_PROVIDER_STATS	VAL1, VAL2, VAL7	WHERE R1 = to_date('[RunDate]', 'DD-MON-YYYY') AND C1 = 'UHC'		UHC_SUB				
+	Generate SCO provider spreadsheet	Y	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_SCO_PROVIDER_STATS	VAL3, VAL4,  VAL8	WHERE R1 = to_date('[RunDate]', 'DD-MON-YYYY') AND C1 = 'UHC'		UHC_ODS				
+	Generate SCO provider spreadsheet	Y	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_SCO_PROVIDER_STATS	VAL5, VAL6, VAL9	WHERE R1 = to_date('[RunDate]', 'DD-MON-YYYY') AND C1 = 'UHC'		UHC_MATCH				
+	Generate SCO provider spreadsheet	Y	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_SCO_PROVIDER_STATS	VAL16, VAL17, VAL18	WHERE R1 = to_date('[RunDate]', 'DD-MON-YYYY') AND C1 = 'UHC'		UHC_MISSING				
+	Generate SCO provider spreadsheet	Y	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_SCO_PROVIDER_MISS_IDS_UHC	S_PROV_ID, B_PROV_ID, P_PROV_ID	WHERE (S_RUN_DATE = TO_DATE('[RunDate]', 'DD-MON-YYYY') OR B_RUN_DATE = TO_DATE('[RunDate]', 'DD-MON-YYYY') OR P_RUN_DATE = TO_DATE('[RunDate]', 'DD-MON-YYYY'))  LIMIT 100		UHC_IDS				
+	Generate SCO provider spreadsheet	Y	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_SCO_PROVIDER_STATS	VAL1, VAL2, VAL7	WHERE R1 = to_date('[RunDate]', 'DD-MON-YYYY') AND C1 = 'SWH'		SWH_SUB				
+	Generate SCO provider spreadsheet	Y	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_SCO_PROVIDER_STATS	VAL3, VAL4,  VAL8	WHERE R1 = to_date('[RunDate]', 'DD-MON-YYYY') AND C1 = 'SWH'		SWH_ODS				
+	Generate SCO provider spreadsheet	Y	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_SCO_PROVIDER_STATS	VAL5, VAL6, VAL9	WHERE R1 = to_date('[RunDate]', 'DD-MON-YYYY') AND C1 = 'SWH'		SWH_MATCH				
+	Generate SCO provider spreadsheet	Y	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_SCO_PROVIDER_STATS	VAL16, VAL17, VAL18	WHERE R1 = to_date('[RunDate]', 'DD-MON-YYYY') AND C1 = 'SWH'		SWH_MISSING				
+	Generate SCO provider spreadsheet	Y	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_SCO_PROVIDER_MISS_IDS_SWH	S_PROV_ID, B_PROV_ID, P_PROV_ID	WHERE (S_RUN_DATE = TO_DATE('[RunDate]', 'DD-MON-YYYY') OR B_RUN_DATE = TO_DATE('[RunDate]', 'DD-MON-YYYY') OR P_RUN_DATE = TO_DATE('[RunDate]', 'DD-MON-YYYY')) LIMIT 100		SWH_IDS				
+	Generate SCO provider spreadsheet	Y	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_SCO_PROVIDER_STATS	VAL1, VAL2, VAL7	WHERE R1 = to_date('[RunDate]', 'DD-MON-YYYY') AND C1 = 'TFT'		TFT_SUB				
+	Generate SCO provider spreadsheet	Y	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_SCO_PROVIDER_STATS	VAL3, VAL4,  VAL8	WHERE R1 = to_date('[RunDate]', 'DD-MON-YYYY') AND C1 = 'TFT'		TFT_ODS				
+	Generate SCO provider spreadsheet	Y	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_SCO_PROVIDER_STATS	VAL5, VAL6, VAL9	WHERE R1 = to_date('[RunDate]', 'DD-MON-YYYY') AND C1 = 'TFT'		TFT_MATCH				
+	Generate SCO provider spreadsheet	Y	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_SCO_PROVIDER_STATS	VAL16, VAL17, VAL18	WHERE R1 = to_date('[RunDate]', 'DD-MON-YYYY') AND C1 = 'TFT'		TFT_MISSING				
+	Generate SCO provider spreadsheet	Y	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_SCO_PROVIDER_MISS_IDS_TFT	S_PROV_ID, B_PROV_ID, P_PROV_ID	WHERE (S_RUN_DATE = TO_DATE('[RunDate]', 'DD-MON-YYYY') OR B_RUN_DATE = TO_DATE('[RunDate]', 'DD-MON-YYYY') OR P_RUN_DATE = TO_DATE('[RunDate]', 'DD-MON-YYYY')) LIMIT 100		TFT_IDS				
+	Generate SCO provider spreadsheet	Y	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_SCO_PROVIDER_STATS	VAL1, VAL2, VAL7	WHERE R1 = to_date('[RunDate]', 'DD-MON-YYYY') AND C1 = 'BHP'		BHP_SUB				
+	Generate SCO provider spreadsheet	Y	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_SCO_PROVIDER_STATS	VAL3, VAL4,  VAL8	WHERE R1 = to_date('[RunDate]', 'DD-MON-YYYY') AND C1 = 'BHP'		BHP_ODS				
+	Generate SCO provider spreadsheet	Y	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_SCO_PROVIDER_STATS	VAL5, VAL6, VAL9	WHERE R1 = to_date('[RunDate]', 'DD-MON-YYYY') AND C1 = 'BHP'		BHP_MATCH				
+	Generate SCO provider spreadsheet	Y	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_SCO_PROVIDER_STATS	VAL16, VAL17, VAL18	WHERE R1 = to_date('[RunDate]', 'DD-MON-YYYY') AND C1 = 'BHP'		BHP_MISSING				
+	Generate SCO provider spreadsheet	Y	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_SCO_PROVIDER_MISS_IDS_BHP	S_PROV_ID, B_PROV_ID, P_PROV_ID	WHERE (S_RUN_DATE = TO_DATE('[RunDate]', 'DD-MON-YYYY') OR B_RUN_DATE = TO_DATE('[RunDate]', 'DD-MON-YYYY') OR P_RUN_DATE = TO_DATE('[RunDate]', 'DD-MON-YYYY')) LIMIT 100		BHP_IDS				
+	Generate SCO provider spreadsheet	Y	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_SCO_PROVIDER_STATS	VAL1, VAL2, VAL7	WHERE R1 = to_date('[RunDate]', 'DD-MON-YYYY') AND C1 = 'MGS'		MGS_SUB				
+	Generate SCO provider spreadsheet	Y	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_SCO_PROVIDER_STATS	VAL3, VAL4,  VAL8	WHERE R1 = to_date('[RunDate]', 'DD-MON-YYYY') AND C1 = 'MGS'		MGS_ODS				
+	Generate SCO provider spreadsheet	Y	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_SCO_PROVIDER_STATS	VAL5, VAL6, VAL9	WHERE R1 = to_date('[RunDate]', 'DD-MON-YYYY') AND C1 = 'MGS'		MGS_MATCH				
+	Generate SCO provider spreadsheet	Y	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_SCO_PROVIDER_STATS	VAL16, VAL17, VAL18	WHERE R1 = to_date('[RunDate]', 'DD-MON-YYYY') AND C1 = 'MGS'		MGS_MISSING				
+	Generate SCO provider spreadsheet	Y	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_SCO_PROVIDER_MISS_IDS_MGS	S_PROV_ID, B_PROV_ID, P_PROV_ID	WHERE (S_RUN_DATE = TO_DATE('[RunDate]', 'DD-MON-YYYY') OR B_RUN_DATE = TO_DATE('[RunDate]', 'DD-MON-YYYY') OR P_RUN_DATE = TO_DATE('[RunDate]', 'DD-MON-YYYY')) LIMIT 100		MGS_IDS				
+	Generate SCO provider spreadsheet	N	ExportDataToExcel	[OutputFolder]	Provider_Summary_Evaluation_YYYY-MM-DD.xlsx	[OutputFolder]								
+	Generate SCO provider spreadsheet	N	SetVariablesWithSql	[TnsIdentifier]	[SqlFolder][Slash]get_date.sql	ProducedDate								
+	Generate SCO provider spreadsheet	N	RunSubProcess	Data Integration Operations	Rename file with overwrite	[OutputFolder], Provider_Summary_Evaluation_[ProducedDate].xlsx, Provider_Summary_Evaluation_[DATE_STR].xlsx								
+	Generate OC provider main	N	Comment	Create the OC provider sheet main										
+	XGenerate OC provider main	N	SendEmailOnFailure	[TnsIdentifier]	MHDWPROD.DQAPP	INF_B_SC_MCO_SCORECARD_EMAIL_ALERTS								
+	XGenerate OC provider main	N	SetProcessParameter	ProdOrTest	PROD									
+	Generate OC provider main	N	SetProcessParameter	ProdOrTest	TEST									
+	Generate OC provider main	N	ForEachRecordOfTable	[TnsIdentifier]	MHTEAM.DWDQ	INF_SC_OC_QUARTER	RUN_DATE,DATE_STR,EMAIL_BODY		RunDate,DATE_STR,EmailBody					
+	Generate OC provider main	N	Comment	Run the OC Providers										
+	Generate OC provider main	N	RunSubProcess	Encounter Scorecards	Generate OC provider spreadsheet	[RunDate],[DATE_STR],"[EmailBody]",[ProdOrTest]								
+	Generate OC provider main	N	NextRecordOfTable	INF_SC_OC_QUARTER										
+	Generate OC provider spreadsheet	N	Comment	Create the OC provider spreadsheet										
+	Generate OC provider spreadsheet	N	SubProcess	RunDate,DATE_STR,EmailBody,ProdOrTest										
+	Generate OC provider spreadsheet	N	SetProcessParameter	OutputFolder	[ExcelDataFolder]									
+	Generate OC provider spreadsheet	Y	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_OC_PROVIDER_STATS	VAL1, VAL2, VAL7	WHERE R1 = to_date('[RunDate]', 'DD-MON-YYYY') AND C1 = 'CCI'		CCI_SUB				
+	Generate OC provider spreadsheet	Y	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_OC_PROVIDER_STATS	VAL3, VAL4,  VAL8	WHERE R1 = to_date('[RunDate]', 'DD-MON-YYYY') AND C1 = 'CCI'		CCI_ODS				
+	Generate OC provider spreadsheet	Y	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_OC_PROVIDER_STATS	VAL5, VAL6, VAL9	WHERE R1 = to_date('[RunDate]', 'DD-MON-YYYY') AND C1 = 'CCI'		CCI_MATCH				
+	Generate OC provider spreadsheet	Y	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_OC_PROVIDER_STATS	VAL16, VAL17, VAL18	WHERE R1 = to_date('[RunDate]', 'DD-MON-YYYY') AND C1 = 'CCI'		CCI_MISSING				
+	Generate OC provider spreadsheet	Y	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_OC_PROVIDER_MISS_IDS_CCI	S_PROV_ID, B_PROV_ID, P_PROV_ID	WHERE (S_RUN_DATE = TO_DATE('[RunDate]', 'DD-MON-YYYY') OR B_RUN_DATE = TO_DATE('[RunDate]', 'DD-MON-YYYY') OR P_RUN_DATE = TO_DATE('[RunDate]', 'DD-MON-YYYY')) LIMIT 100		CCI_IDS				
+	Generate OC provider spreadsheet	Y	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_OC_PROVIDER_STATS	VAL1, VAL2, VAL7	WHERE R1 = to_date('[RunDate]', 'DD-MON-YYYY') AND C1 = 'NWI'		NWI_SUB				
+	Generate OC provider spreadsheet	Y	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_OC_PROVIDER_STATS	VAL3, VAL4,  VAL8	WHERE R1 = to_date('[RunDate]', 'DD-MON-YYYY') AND C1 = 'NWI'		NWI_ODS				
+	Generate OC provider spreadsheet	Y	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_OC_PROVIDER_STATS	VAL5, VAL6, VAL9	WHERE R1 = to_date('[RunDate]', 'DD-MON-YYYY') AND C1 = 'NWI'		NWI_MATCH				
+	Generate OC provider spreadsheet	Y	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_OC_PROVIDER_STATS	VAL16, VAL17, VAL18	WHERE R1 = to_date('[RunDate]', 'DD-MON-YYYY') AND C1 = 'NWI'		NWI_MISSING				
+	Generate OC provider spreadsheet	Y	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_OC_PROVIDER_MISS_IDS_NWI	S_PROV_ID, B_PROV_ID, P_PROV_ID	WHERE (S_RUN_DATE = TO_DATE('[RunDate]', 'DD-MON-YYYY') OR B_RUN_DATE = TO_DATE('[RunDate]', 'DD-MON-YYYY') OR P_RUN_DATE = TO_DATE('[RunDate]', 'DD-MON-YYYY')) LIMIT 100		NWI_IDS				
+	Generate OC provider spreadsheet	Y	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_OC_PROVIDER_STATS	VAL1, VAL2, VAL7	WHERE R1 = to_date('[RunDate]', 'DD-MON-YYYY') AND C1 = 'UCC'		UCC_SUB				
+	Generate OC provider spreadsheet	Y	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_OC_PROVIDER_STATS	VAL3, VAL4,  VAL8	WHERE R1 = to_date('[RunDate]', 'DD-MON-YYYY') AND C1 = 'UCC'		UCC_ODS				
+	Generate OC provider spreadsheet	Y	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_OC_PROVIDER_STATS	VAL5, VAL6, VAL9	WHERE R1 = to_date('[RunDate]', 'DD-MON-YYYY') AND C1 = 'UCC'		UCC_MATCH				
+	Generate OC provider spreadsheet	Y	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_OC_PROVIDER_STATS	VAL16, VAL17, VAL18	WHERE R1 = to_date('[RunDate]', 'DD-MON-YYYY') AND C1 = 'UCC'		UCC_MISSING				
+	Generate OC provider spreadsheet	Y	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_OC_PROVIDER_MISS_IDS_UCC	S_PROV_ID, B_PROV_ID, P_PROV_ID	WHERE (S_RUN_DATE = TO_DATE('[RunDate]', 'DD-MON-YYYY') OR B_RUN_DATE = TO_DATE('[RunDate]', 'DD-MON-YYYY') OR P_RUN_DATE = TO_DATE('[RunDate]', 'DD-MON-YYYY')) LIMIT 100		UCC_IDS				
+	Generate OC provider spreadsheet	Y	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_OC_PROVIDER_STATS	VAL1, VAL2, VAL7	WHERE R1 = to_date('[RunDate]', 'DD-MON-YYYY') AND C1 = 'MGI'		MGI_SUB				
+	Generate OC provider spreadsheet	Y	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_OC_PROVIDER_STATS	VAL3, VAL4,  VAL8	WHERE R1 = to_date('[RunDate]', 'DD-MON-YYYY') AND C1 = 'MGI'		MGI_ODS				
+	Generate OC provider spreadsheet	Y	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_OC_PROVIDER_STATS	VAL5, VAL6, VAL9	WHERE R1 = to_date('[RunDate]', 'DD-MON-YYYY') AND C1 = 'MGI'		MGI_MATCH				
+	Generate OC provider spreadsheet	Y	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_OC_PROVIDER_STATS	VAL16, VAL17, VAL18	WHERE R1 = to_date('[RunDate]', 'DD-MON-YYYY') AND C1 = 'MGI'		MGI_MISSING				
+[object Object]	Generate OC provider spreadsheet	Y	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_OC_PROVIDER_MISS_IDS_MGI	S_PROV_ID, B_PROV_ID, P_PROV_ID	WHERE (S_RUN_DATE = TO_DATE('[RunDate]', 'DD-MON-YYYY') OR B_RUN_DATE = TO_DATE('[RunDate]', 'DD-MON-YYYY') OR P_RUN_DATE = TO_DATE('[RunDate]', 'DD-MON-YYYY')) LIMIT 100		MGI_IDS				
+	Generate OC provider spreadsheet	Y	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_OC_PROVIDER_STATS	VAL1, VAL2, VAL7	WHERE R1 = to_date('[RunDate]', 'DD-MON-YYYY') AND C1 = 'MHI'		MHI_SUB				
+	Generate OC provider spreadsheet	Y	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_OC_PROVIDER_STATS	VAL3, VAL4,  VAL8	WHERE R1 = to_date('[RunDate]', 'DD-MON-YYYY') AND C1 = 'MHI'		MHI_ODS				
+	Generate OC provider spreadsheet	Y	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_OC_PROVIDER_STATS	VAL5, VAL6, VAL9	WHERE R1 = to_date('[RunDate]', 'DD-MON-YYYY') AND C1 = 'MHI'		MHI_MATCH				
+	Generate OC provider spreadsheet	Y	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_OC_PROVIDER_STATS	VAL16, VAL17, VAL18	WHERE R1 = to_date('[RunDate]', 'DD-MON-YYYY') AND C1 = 'MHI'		MHI_MISSING				
+	Generate OC provider spreadsheet	Y	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_OC_PROVIDER_MISS_IDS_MHI	S_PROV_ID, B_PROV_ID, P_PROV_ID	WHERE (S_RUN_DATE = TO_DATE('[RunDate]', 'DD-MON-YYYY') OR B_RUN_DATE = TO_DATE('[RunDate]', 'DD-MON-YYYY') OR P_RUN_DATE = TO_DATE('[RunDate]', 'DD-MON-YYYY')) LIMIT 100		MHI_IDS				
+	Generate OC provider spreadsheet	N	ExportDataToExcel	[OutputFolder]	Provider_Summary_Evaluation_YYYY-MM-DD_OC.xlsx	[OutputFolder]								
+	Generate OC provider spreadsheet	N	SetVariablesWithSql	[TnsIdentifier]	[SqlFolder][Slash]get_date.sql	ProducedDate								
+	Generate OC provider spreadsheet	N	RunSubProcess	Data Integration Operations	Rename file with overwrite	[OutputFolder], Provider_Summary_Evaluation_[ProducedDate]_OC.xlsx, Provider_Summary_Evaluation_[DATE_STR]_OC.xlsx								
+	Generate OC spreadsheet main	N	Comment	Create the OC spreadsheet main										
+	XGenerate OC spreadsheet main	N	SendEmailOnFailure	[TnsIdentifier]	MHDWPROD.DQAPP	INF_B_SC_MCO_SCORECARD_EMAIL_ALERTS								
+	XGenerate OC spreadsheet main	N	SetProcessParameter	ProdOrTest	PROD									
+	Generate OC spreadsheet main	N	SetProcessParameter	ProdOrTest	TEST									
+	Generate OC spreadsheet main	N	ForEachRecordOfTable	[TnsIdentifier]	MHTEAM.DWDQ	INF_SC_OC_QUARTER	RUN_DATE,DATE_STR,EMAIL_BODY		RunDate,DATE_STR,EmailBody					
+	Generate OC spreadsheet main	N	Comment	Run the SCO Providers										
+	Generate OC spreadsheet main	N	RunSubProcess	Encounter Scorecards	Generate OC provider spreadsheet	[RunDate],[DATE_STR],"[EmailBody]",[ProdOrTest]								
+	Generate OC spreadsheet main	N	Comment	Run the SCO Spreadsheet										
+	Generate OC spreadsheet main	N	RunSubProcess	Encounter Scorecards	Generate OC spreadsheet	[RunDate],[DATE_STR],"[EmailBody]",[ProdOrTest]								
+	Generate OC spreadsheet main	N	NextRecordOfTable	INF_SC_OC_QUARTER										
+	Generate OC spreadsheet	N	Comment	Create the OC spreadsheet										
+	Generate OC spreadsheet	N	SubProcess	RunDate,DATE_STR,EmailBody,ProdOrTest										
+	Generate OC spreadsheet	N	SetProcessParameter	OutputFolder	[ExcelDataFolder]									
+[object Object]	Generate OC spreadsheet	N	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_OC_REPORT	MEASURE,CLAIMTYPE,BENCHMARK,CCI,CCI_DENOM,NWI,NWI_DENOM,UCC,UCC_DENOM,MGI,MGI_DENOM,MHI,MHI_DENOM	where RUN_DATE = to_date('[RunDate]', 'DD-MON-YYYY')	order by MEASURE	OC_DATA				
+	Generate OC spreadsheet	Y	SetExcelExportData	[TnsIdentifier]	[Schema]	INF_SC_OC_FAILS	CDE_ENC_MCO,MEASURE,ENC_CLAIM_NO,ENC_CLAIM_SUFFIX,CDE_CLM_DISPOSITION,DOS_FROM,CLAIM_TYPE,ETL_CHECK,DESC1,VALUE1,DESC2,VALUE2,DESC3,VALUE3,DESC4,VALUE4,DESC5,VALUE5,DESC6, VALUE6, DESC7, VALUE7,  DESC8, VALUE8, DESC9, VALUE9, DESC10,  VALUE10, DESC11, VALUE11	where RUN_DATE = to_date('[RunDate]', 'DD-MON-YYYY')	order by CDE_ENC_MCO,MEASURE	FAILS_DATA				
+	Generate OC spreadsheet	Y	ExportDataToExcel	[OutputFolder]	ONECARE_REPORT_CARD_YYYY-MM-DD.xlsx	[OutputFolder]								
+	Generate OC spreadsheet	N	SetVariablesWithSql	[TnsIdentifier]	[SqlFolder][Slash]get_date.sql	ProducedDate								
+	Generate OC spreadsheet	N	RunSubProcess	Data Integration Operations	Rename file with overwrite	[OutputFolder], ONECARE_REPORT_CARD_[ProducedDate].xlsx, ONECARE_REPORT_CARD_[DATE_STR].xlsx								
+	Generate OC spreadsheet	N	Comment	Compiling the email										
+	Generate OC spreadsheet	N	SetVariable	EmailSubject	ONECARE_REPORT_CARD_[DATE_STR]									
+	Generate OC spreadsheet	N	SetEmailAttachment	[OutputFolder]	Provider_Summary_Evaluation_[DATE_STR]_OC.xlsx	Y								
+	Generate OC spreadsheet	N	SetEmailAttachment	[OutputFolder]	ONECARE_REPORT_CARD_[DATE_STR].xlsx	Y								
+	Generate OC spreadsheet	N	RunSubProcess	Data Integration Operations	Send email	MHDWPROD.DQAPP,INF_B_SC_OC_SCORECARD_[ProdOrTest]_RECP,RECIPIENT,[EmailSubject],"[EmailBody]"								
+	Deploy tables for Encounter Scorecards to QA	N	Comment	Copies tables and commands for Encounter Scorecards from Development to QA.										
+	Deploy tables for Encounter Scorecards to QA	N	RunSubProcess	Data Integration Operations	Deploy tables from Dev	DWP1RAC, DQAPP, DWQ1RAC, DQ, "'Encounter Scorecards'", ES_CONTROL_TABLES,  and DEPLOY_YN = 'Y'								
+	XDeploy tables for Encounter Scorecards to Dev	N	RunSubProcess	Data Integration Operations	Deploy tables from Dev	DWQ1XXX, DQ, DWP1RAC, DQAPP, "'Encounter Scorecards'", ES_CONTROL_TABLES,  and DEPLOY_YN = 'Y'								
+	Deploy files from Dev for Encounter Scorecards	N	Comment	Copies files for Encounter Scorecards from Development to Production. This is a "pull" process executed from the production job server.										
+	Deploy files from Dev for Encounter Scorecards	N	SetProcessParameter	DevJobServer	Calvin									
+	Deploy files from Dev for Encounter Scorecards	N	RunSubProcess	Data Integration Operations	Deploy files from Dev	DWP1RAC, Dev, [DevJobServer], Encounter Scorecards, N, N								
+	Manual deploy table	N	Comment	Copies a single table from one environment to another.										
+	Manual deploy table	N	CopyTable-Force	DWQ1RAC	MHTEAM.DWDQ	TABLE_NAME	DWP1RAC	DQAPP	TABLE_NAME					
+	Bottom line for command editing													
+
