@@ -36,11 +36,11 @@ CREATE TABLE MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_BMC_RECP
 Insert into MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_BMC_RECP
    (ID, RECIPIENT)
  Values
+   (1, 'Corey.E.Chan@mass.gov');
+Insert into MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_BMC_RECP
+   (ID, RECIPIENT)
+ Values
    (2, 'Daniel.Quimby@BMCHP-wellsense.org');
---Insert into MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_BMC_RECP
---   (ID, RECIPIENT)
--- Values
---   (3, 'Laura.Francis@BMCHP-wellsense.org');
 Insert into MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_BMC_RECP
    (ID, RECIPIENT)
  Values
@@ -93,21 +93,10 @@ Insert into MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_BMC_RECP
    (ID, RECIPIENT)
  Values
    (15, 'jp.leger@mass.gov');
---Insert into MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_BMC_RECP
---   (ID, RECIPIENT)
--- Values
---   (16, 'Robert.Sellers@mass.gov');
-
 Insert into MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_BMC_RECP
    (ID, RECIPIENT)
  Values
    (16, 'saleem.adam@wellsense.org');
-
-Insert into MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_BMC_RECP
-   (ID, RECIPIENT)
- Values
-   (1, 'Corey.E.Chan@mass.gov');
-
 Insert into MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_BMC_RECP
    (ID, RECIPIENT)
  Values
@@ -116,15 +105,20 @@ Insert into MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_BMC_RECP
    (ID, RECIPIENT)
  Values
    (18, 'Prasanth.Malekar@mass.gov');
-
 Insert into MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_BMC_RECP
    (ID, RECIPIENT)
  Values
    (19, 'james.marsh@wellsense.org');
-
+Insert into MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_BMC_RECP
+   (ID, RECIPIENT)
+ Values
+   (20, 'Michael.donnelly@wellsense.org');
 
 COMMIT;
 
+SELECT *
+FROM MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_BMC_RECP
+ORDER BY ID;
 
 CREATE TABLE MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_CHA_RECP
 (
@@ -181,10 +175,10 @@ Insert into MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_CHA_RECP
    (ID, RECIPIENT)
  Values
    (12, 'jp.leger@mass.gov');
---Insert into MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_CHA_RECP
---   (ID, RECIPIENT)
--- Values
---   (13, 'Robert.Sellers@mass.gov');
+Insert into MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_CHA_RECP
+   (ID, RECIPIENT)
+ Values
+   (13, 'Prasanth.Malekar@mass.gov');
 Insert into MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_CHA_RECP
    (ID, RECIPIENT)
  Values
@@ -193,17 +187,16 @@ Insert into MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_CHA_RECP
    (ID, RECIPIENT)
  Values
    (15, 'Augustus.Matekole@mass.gov');
-
 Insert into MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_CHA_RECP
    (ID, RECIPIENT)
  Values
    (16, 'Calvin.Luong@mass.gov');
-Insert into MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_CHA_RECP
-   (ID, RECIPIENT)
- Values
-   (17, 'Prasanth.Malekar@mass.gov');
 
 COMMIT;
+
+SELECT *
+FROM MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_CHA_RECP
+ORDER BY ID;
 
 CREATE TABLE MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_FLN_RECP
 (
@@ -212,14 +205,6 @@ CREATE TABLE MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_FLN_RECP
 );
 
 -- SET DEFINE OFF;
-Insert into MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_FLN_RECP
-   (ID, RECIPIENT)
- Values
-   (12, 'irving.dominguez@mass.gov');
-Insert into MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_FLN_RECP
-   (ID, RECIPIENT)
- Values
-   (13, 'Augustus.Matekole@mass.gov');
 Insert into MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_FLN_RECP
    (ID, RECIPIENT)
  Values
@@ -260,21 +245,29 @@ Insert into MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_FLN_RECP
    (ID, RECIPIENT)
  Values
    (10, 'jp.leger@mass.gov');
---Insert into MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_FLN_RECP
---   (ID, RECIPIENT)
--- Values
---   (11, 'Robert.Sellers@mass.gov');
-
+Insert into MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_FLN_RECP
+   (ID, RECIPIENT)
+ Values
+   (11, 'Prasanth.Malekar@mass.gov');
+Insert into MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_FLN_RECP
+   (ID, RECIPIENT)
+ Values
+   (12, 'irving.dominguez@mass.gov');
+Insert into MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_FLN_RECP
+   (ID, RECIPIENT)
+ Values
+   (13, 'Augustus.Matekole@mass.gov');
 Insert into MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_FLN_RECP
    (ID, RECIPIENT)
  Values
    (14, 'Calvin.Luong@mass.gov');
-Insert into MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_FLN_RECP
-   (ID, RECIPIENT)
- Values
-   (15, 'Prasanth.Malekar@mass.gov');
 
 COMMIT;
+
+SELECT *
+FROM MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_FLN_RECP
+ORDER BY ID;
+
 
 CREATE TABLE MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_HNE_RECP
 (
@@ -283,14 +276,6 @@ CREATE TABLE MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_HNE_RECP
 );
 
 -- SET DEFINE OFF;
-Insert into MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_HNE_RECP
-   (ID, RECIPIENT)
- Values
-   (11, 'irving.dominguez@mass.gov');
-Insert into MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_HNE_RECP
-   (ID, RECIPIENT)
- Values
-   (12, 'Augustus.Matekole@mass.gov');
 Insert into MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_HNE_RECP
    (ID, RECIPIENT)
  Values
@@ -327,11 +312,18 @@ Insert into MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_HNE_RECP
    (ID, RECIPIENT)
  Values
    (9, 'jp.leger@mass.gov');
---Insert into MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_HNE_RECP
---   (ID, RECIPIENT)
--- Values
---   (10, 'Robert.Sellers@mass.gov');
-
+Insert into MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_HNE_RECP
+   (ID, RECIPIENT)
+ Values
+   (10, 'Prasanth.Malekar@mass.gov');
+Insert into MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_HNE_RECP
+   (ID, RECIPIENT)
+ Values
+   (11, 'irving.dominguez@mass.gov');
+Insert into MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_HNE_RECP
+   (ID, RECIPIENT)
+ Values
+   (12, 'Augustus.Matekole@mass.gov');
 Insert into MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_HNE_RECP
    (ID, RECIPIENT)
  Values
@@ -343,6 +335,10 @@ Insert into MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_HNE_RECP
 
 COMMIT;
 
+SELECT *
+FROM MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_HNE_RECP
+ORDER BY ID;
+
 CREATE TABLE MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_INTERNAL_RECP
 (
   ID         NUMBER(38),
@@ -350,18 +346,6 @@ CREATE TABLE MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_INTERNAL_RECP
 );
 
 -- SET DEFINE OFF;
-Insert into MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_INTERNAL_RECP
-   (ID, RECIPIENT)
- Values
-   (9, 'irving.dominguez@mass.gov');
-Insert into MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_INTERNAL_RECP
-   (ID, RECIPIENT)
- Values
-   (10, 'Augustus.Matekole@mass.gov');
---Insert into MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_INTERNAL_RECP
---   (ID, RECIPIENT)
--- Values
---   (11, 'Elissa.H.Mallis@mass.gov');
 Insert into MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_INTERNAL_RECP
    (ID, RECIPIENT)
  Values
@@ -390,18 +374,24 @@ Insert into MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_INTERNAL_RECP
    (ID, RECIPIENT)
  Values
    (7, 'Calvin.Luong@mass.gov');
-
---Insert into MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_INTERNAL_RECP
---   (ID, RECIPIENT)
--- Values
---   (8, 'Robert.Sellers@mass.gov');
-
 Insert into MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_INTERNAL_RECP
    (ID, RECIPIENT)
  Values
-   (11, 'Prasanth.Malekar@mass.gov');
+   (8, 'Prasanth.Malekar@mass.gov');
+Insert into MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_INTERNAL_RECP
+   (ID, RECIPIENT)
+ Values
+   (9, 'irving.dominguez@mass.gov');
+Insert into MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_INTERNAL_RECP
+   (ID, RECIPIENT)
+ Values
+   (10, 'Augustus.Matekole@mass.gov');
 
 COMMIT;
+
+SELECT *
+FROM MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_INTERNAL_RECP
+ORDER BY ID;
 
 CREATE TABLE MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_MBH_RECP
 (
@@ -470,7 +460,6 @@ Insert into MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_MBH_RECP
    (ID, RECIPIENT)
  Values
    (15, 'Augustus.Matekole@mass.gov');
-
 Insert into MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_MBH_RECP
    (ID, RECIPIENT)
  Values
@@ -481,6 +470,11 @@ Insert into MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_MBH_RECP
    (17, 'Prasanth.Malekar@mass.gov');
 
 COMMIT;
+
+SELECT *
+FROM MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_MBH_RECP
+ORDER BY ID;
+
 
 CREATE TABLE MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_NHP_RECP
 (
@@ -505,71 +499,65 @@ Insert into MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_NHP_RECP
    (ID, RECIPIENT)
  Values
    (4, 'ECaruso@AllWaysHealth.org');
--- Removed 3/3/26 per email from MGBHP
---Insert into MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_NHP_RECP
---   (ID, RECIPIENT)
--- Values
---   (5, 'ikane@AllWaysHealth.org');
 Insert into MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_NHP_RECP
    (ID, RECIPIENT)
  Values
-   (6, 'BKandru@AllWaysHealth.org');
+   (5, 'BKandru@AllWaysHealth.org');
 Insert into MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_NHP_RECP
    (ID, RECIPIENT)
  Values
-   (7, 'MSeto@AllWaysHealth.org');
+   (6, 'MSeto@AllWaysHealth.org');
 Insert into MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_NHP_RECP
    (ID, RECIPIENT)
  Values
-   (8, 'KUmashankar@AllWaysHealth.org');
+   (7, 'KUmashankar@AllWaysHealth.org');
 Insert into MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_NHP_RECP
    (ID, RECIPIENT)
  Values
-   (9, 'KKeefe@AllWaysHealth.org');
+   (8, 'KKeefe@AllWaysHealth.org');
 Insert into MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_NHP_RECP
    (ID, RECIPIENT)
  Values
-   (10, 'rbasavaraju@mgb.org');
+   (9, 'rbasavaraju@mgb.org');
 Insert into MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_NHP_RECP
    (ID, RECIPIENT)
  Values
-   (11, 'nicole.tibbetts@mass.gov');
+   (10, 'nicole.tibbetts@mass.gov');
 Insert into MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_NHP_RECP
    (ID, RECIPIENT)
  Values
-   (12, 'Alexander.G.Belanger@mass.gov');
+   (11, 'Alexander.G.Belanger@mass.gov');
 Insert into MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_NHP_RECP
    (ID, RECIPIENT)
  Values
-   (13, 'shruti.dadhi@mass.gov');
+   (12, 'shruti.dadhi@mass.gov');
 Insert into MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_NHP_RECP
    (ID, RECIPIENT)
  Values
-   (14, 'jp.leger@mass.gov');
---Insert into MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_NHP_RECP
---   (ID, RECIPIENT)
--- Values
---   (15, 'Robert.Sellers@mass.gov');
+   (13, 'jp.leger@mass.gov');
 Insert into MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_NHP_RECP
    (ID, RECIPIENT)
  Values
-   (16, 'irving.dominguez@mass.gov');
+   (14, 'irving.dominguez@mass.gov');
 Insert into MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_NHP_RECP
    (ID, RECIPIENT)
  Values
-   (17, 'Augustus.Matekole@mass.gov');
-
+   (15, 'Augustus.Matekole@mass.gov');
 Insert into MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_NHP_RECP
    (ID, RECIPIENT)
  Values
-   (18, 'Calvin.Luong@mass.gov');
+   (16, 'Calvin.Luong@mass.gov');
 Insert into MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_NHP_RECP
    (ID, RECIPIENT)
  Values
-   (19, 'Prasanth.Malekar@mass.gov');
-
+   (17, 'Prasanth.Malekar@mass.gov');
 
 COMMIT;
+
+SELECT *
+FROM MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_NHP_RECP
+ORDER BY ID;
+
 
 CREATE TABLE MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_TEST_1
 (
@@ -1004,26 +992,3 @@ where ID = 5;
 
 delete from MHDWPROD.DQAPP.INF_B_SC_MCO_SCORECARD_PROD_NHP_RECP
 where ID = 5;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
